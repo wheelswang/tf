@@ -6,7 +6,7 @@ public [__construct](#__construct)(string server, string user, string password, 
 
 public array [query](#query)(string table, mixed condition = null, array params, mixed fields = "\*", bool forUpdate = false);
 
-public array [queryAll](#queryAll)(string table, mixed condition = null, array params = null, mixed fields = "\*", bool forUpdate = false);
+public array [queryAll](#queryall)(string table, mixed condition = null, array params = null, mixed fields = "\*", bool forUpdate = false);
 
 public bool [update](#update)(string table, array data, mixed condition, array params = null);
 
@@ -16,11 +16,11 @@ public bool [delete](#delete)(string table, mixed condition, array params = null
 
 public int [count](#count)(string table, mixed condition = null, array params = null);
 
-public mixed [execSql](#execSql)(string sql, array params = null);
+public mixed [execSql](#execsql)(string sql, array params = null);
 
-public int [getRowCount](#getRowCount)(void);
+public int [getRowCount](#getrowcount)(void);
 
-public string [getLastInsertId](#getLastInsertId)(void);
+public string [getLastInsertId](#getlastinsertid)(void);
 
 public bool [begin](#begin)(void);
 
@@ -28,7 +28,7 @@ public bool [commit](#commit)(void);
 
 public bool [rollback](#rollback)(void);
 
-public int [getTransactionLevel](#getTransactionLevel)(void);
+public int [getTransactionLevel](#gettransactionlevel)(void);
 
 public void [close](#close)(void);
 
@@ -83,7 +83,7 @@ public void [close](#close)(void);
 ### 返回值
 查询结果数组，结果为空时返回null， 出错返回false
 
-## <span id="queryAll">queryAll</span>
+## <span id="queryall">queryAll</span>
 ### 定义
     public array queryAll(string table, mixed condition = null, array params = null, mixed fields = "*", bool forUpdate = false);
 ### 参数
@@ -165,7 +165,7 @@ SQL语句
 ### 返回值
 查询结果数组，或者操作布尔结果
 
-## <span id="getRowCount">getRowCount</span>
+## <span id="getrowcount">getRowCount</span>
 ### 定义
     public int getRowCount(void)
 ### 参数
@@ -173,7 +173,7 @@ SQL语句
 ### 返回值
 update或者delete影响的行数
 
-## <span id="getLastInsertId">getLastInsertId</span>
+## <span id="getlastinsertid">getLastInsertId</span>
 ### 定义
     public string getLastInsertId(void)
 ### 参数
@@ -208,7 +208,7 @@ update或者delete影响的行数
 ### 返回值
 成功true 失败false
 
-## <span id="getTransactionLevel">getTransactionLevel</span>
+## <span id="gettransactionlevel">getTransactionLevel</span>
 ### 定义
     public int getTransactionLevel(void)
 获取事务嵌套等级
