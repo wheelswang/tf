@@ -1,41 +1,41 @@
 # TF\\DB
 ## 介绍
-数据库类，封装常用数据库操作，支持事务嵌套、主从配置
-## 函数列表
-public [__construct](#__construct)(string server, string user, string password, string dbname, string charset = "utf8", string persistent = 0, string slaveConfigs = null);
+数据库类，封装常用数据库操作，支持事务嵌套、主从配置、自动重连
+## 方法
+public [__construct](#__construct)(string server, string user, string password, string dbname, string charset = "utf8", string persistent = 0, string slaveConfigs = null)
 
-public array [query](#query)(string table, mixed condition = null, array params, mixed fields = "\*", bool forUpdate = false);
+public array [query](#query)(string table, mixed condition = null, array params, mixed fields = "\*", bool forUpdate = false)
 
-public array [queryAll](#queryall)(string table, mixed condition = null, array params = null, mixed fields = "\*", bool forUpdate = false);
+public array [queryAll](#queryall)(string table, mixed condition = null, array params = null, mixed fields = "\*", bool forUpdate = false)
 
-public bool [update](#update)(string table, array data, mixed condition, array params = null);
+public bool [update](#update)(string table, array data, mixed condition, array params = null)
 
-public bool [insert](#insert)(string table, array data);
+public bool [insert](#insert)(string table, array data)
 
-public bool [delete](#delete)(string table, mixed condition, array params = null);
+public bool [delete](#delete)(string table, mixed condition, array params = null)
 
-public int [count](#count)(string table, mixed condition = null, array params = null);
+public int [count](#count)(string table, mixed condition = null, array params = null)
 
-public mixed [execSql](#execsql)(string sql, array params = null);
+public mixed [execSql](#execsql)(string sql, array params = null)
 
-public int [getRowCount](#getrowcount)(void);
+public int [getRowCount](#getrowcount)(void)
 
-public string [getLastInsertId](#getlastinsertid)(void);
+public string [getLastInsertId](#getlastinsertid)(void)
 
-public bool [begin](#begin)(void);
+public bool [begin](#begin)(void)
 
-public bool [commit](#commit)(void);
+public bool [commit](#commit)(void)
 
-public bool [rollback](#rollback)(void);
+public bool [rollback](#rollback)(void)
 
-public int [getTransactionLevel](#gettransactionlevel)(void);
+public int [getTransactionLevel](#gettransactionlevel)(void)
 
-public void [close](#close)(void);
+public void [close](#close)(void)
 
 
 ## <span id="__construct">__construct</span>
 ### 定义
-    public void __construct(string server, string user, string password, string dbname, string charset = "utf8", string persistent = 0, string slaveConfigs = null);
+    public void __construct(string server, string user, string password, string dbname, string charset = "utf8", string persistent = 0, string slaveConfigs = null)
 ### 参数
 #### server
 数据库地址， 如："127.0.0.1:3306"
