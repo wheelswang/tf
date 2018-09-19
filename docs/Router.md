@@ -31,6 +31,8 @@ public array function [getRules](#getrules)(void)
 ### 返回值
 无
 
+-----
+
 ## <span id="getmodule">getModule</span>
 ### 定义
     public string function getModule(void)
@@ -38,6 +40,8 @@ public array function [getRules](#getrules)(void)
 无
 ### 返回值
 模块名 不存在模块则返回null
+
+-----
 
 ## <span id="getcontroller">getController</span>
 ### 定义
@@ -47,6 +51,8 @@ public array function [getRules](#getrules)(void)
 ### 返回值
 控制器名称，默认控制器为index
 
+-----
+
 ## <span id="getaction">getAction</span>
 ### 定义
     public string function getAction(void)
@@ -54,6 +60,8 @@ public array function [getRules](#getrules)(void)
 无
 ### 返回值
 方法名，默认方法为index
+
+-----
 
 ## <span id="getparam">getparam</span>
 ### 定义
@@ -66,6 +74,8 @@ public array function [getRules](#getrules)(void)
 ### 返回值
 参数值，不存在则返回null
 
+-----
+
 ## <span id="getparams">getParams</span>
 ### 定义
     public array function getParams(void)
@@ -73,6 +83,8 @@ public array function [getRules](#getrules)(void)
 无
 ### 返回值
 全部参数数组
+
+-----
 
 ## <span id="addrule">addRule</span>
 ### 定义
@@ -85,6 +97,8 @@ public array function [getRules](#getrules)(void)
 #### 返回值
 成功true 失败false
 
+-----
+
 ## <span id="addrules">addRules</span>
 ### 定义
     public bool function addRules(array rules)
@@ -94,6 +108,8 @@ public array function [getRules](#getrules)(void)
 key=>value形式的规则 如：array('/\/room\/(\d+)\/i' => '/room/index/id/$1')
 #### 返回值
 成功true 失败false
+
+-----
 
 ## <span id="getrules">getRules</span>
 ### 定义

@@ -24,6 +24,8 @@ public bool function [isAjax](#isajax)()
 ### 返回值
 无
 
+-----
+
 ## <span id="getschema">getSchema</span>
 ### 定义
     public string function getSchema()
@@ -31,6 +33,8 @@ public bool function [isAjax](#isajax)()
 无
 ### 返回值
 http 或者 https
+
+-----
 
 ## <span id="getdomain">getDomain</span>
 ### 定义
@@ -40,6 +44,8 @@ http 或者 https
 ### 返回值
 当前域名
 
+-----
+
 ## <span id="geturi">getUri</span>
 ### 定义
     public string function getUri()
@@ -48,6 +54,8 @@ http 或者 https
 ### 返回值
 当前uri
 
+-----
+
 ## <span id="geturl">getUrl</span>
 ### 定义
     public string function getUrl()
@@ -55,6 +63,8 @@ http 或者 https
 无
 ### 返回值
 当前url
+
+-----
 
 ## <span id="isajax">isAjax</span>
 ### 定义

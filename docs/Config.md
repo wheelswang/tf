@@ -19,6 +19,8 @@ ini配置文件路径
 ### 返回值
 无
 
+-----
+
 ## <span id="get">get</span>
 ### 定义
     public mixed function get(string name)
@@ -27,6 +29,8 @@ ini配置文件路径
 名称
 #### 返回值
 name对应的配置数据，如不存在返回null
+
+-----
 
 ## <span id="getall">getAll</span>
 ### 定义

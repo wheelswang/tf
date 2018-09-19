@@ -26,6 +26,10 @@ public TF\Controller function [getController](#getcontroller)(void)
 模板目录
 #### tplExt [optional]
 模板文件名后缀
+### 返回值
+无
+
+-----
 
 ## <span id="assign">assign</span>
 ### 定义
@@ -39,6 +43,8 @@ public TF\Controller function [getController](#getcontroller)(void)
 ### 返回值
 无
 
+-----
+
 ## <span id="render">render</span>
 ### 定义
     public string function render(string tplName, array params = array())
@@ -50,6 +56,8 @@ public TF\Controller function [getController](#getcontroller)(void)
 变量数组，如：array('param1' => 1, 'param2' => 2)
 ### 返回值
 渲染后的模板字符串 模板文件不存在返回null
+
+-----
 
 ## <span id="display">display</span>
 ### 定义
@@ -63,6 +71,8 @@ public TF\Controller function [getController](#getcontroller)(void)
 ### 返回值
 无
 
+-----
+
 ## <span id="getvar">getVar</span>
 ### 定义
     public mixed function getVar(string name)
@@ -73,6 +83,8 @@ public TF\Controller function [getController](#getcontroller)(void)
 ### 返回值
 变量值 如不存在返回null
 
+-----
+
 ## <span id="getvars">getVars</span>
 ### 定义
     public array function getVars(void)
@@ -81,6 +93,8 @@ public TF\Controller function [getController](#getcontroller)(void)
 无
 ### 返回值
 变量数组
+
+-----
 
 ## <span id="getcontroller">getController</span>
 ### 定义

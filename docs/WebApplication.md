@@ -34,6 +34,8 @@ public TF\\Logger function [getLogger](Application.md#getlogger)(void)
 ### 返回值
 无
 
+-----
+
 ## <span id="run">run</span>
 ### 定义
     public void function run(void)
@@ -41,6 +43,8 @@ public TF\\Logger function [getLogger](Application.md#getlogger)(void)
 无
 ### 返回值
 无
+
+-----
 
 ## <span id="setautodisplay">setAutoDisplay</span>
 ### 定义

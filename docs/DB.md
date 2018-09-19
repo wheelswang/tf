@@ -32,7 +32,6 @@ public int [getTransactionLevel](#gettransactionlevel)(void)
 
 public void [close](#close)(void)
 
-
 ## <span id="__construct">__construct</span>
 ### 定义
     public void __construct(string server, string user, string password, string dbname, string charset = "utf8", string persistent = 0, string slaveConfigs = null)
@@ -66,6 +65,8 @@ public void [close](#close)(void)
 ### 返回值
 无
 
+-----
+
 ## <span id="query">query</span>
 ### 定义
     public array query(string table, mixed condition = null, array params = null, mixed fields = "*", bool forUpdate = false)
@@ -82,6 +83,8 @@ public void [close](#close)(void)
 行锁，默认为false，使用时必须先手动开始事务
 ### 返回值
 查询结果数组，结果为空时返回null， 出错返回false
+
+-----
 
 ## <span id="queryall">queryAll</span>
 ### 定义
@@ -100,6 +103,8 @@ public void [close](#close)(void)
 ### 返回值
 查询结果数组, 结果为空时返回空数组，出错返回false
 
+-----
+
 ## <span id="update">update</h2>
 ### 定义
     public bool update(string table, array data, mixed condition, array params = null)
@@ -116,6 +121,8 @@ public void [close](#close)(void)
 ### 返回值
 成功true 失败false
 
+-----
+
 ## <span id="insert">insert</span>
 ### 定义
     public bool insert(string table, array data)
@@ -126,6 +133,8 @@ public void [close](#close)(void)
 数据，如：array('field1' => 1, 'field2' => 2)
 ### 返回值
 成功true 失败false
+
+-----
 
 ## <span id="delete">delete</span>
 ### 定义
@@ -141,6 +150,8 @@ public void [close](#close)(void)
 ### 返回值
 成功true 失败false
 
+-----
+
 ## <span id="count">count</span>
 ### 定义
     public int count(string table, mixed condition = null, array params = null)
@@ -154,6 +165,8 @@ public void [close](#close)(void)
 ### 返回值
 查询结果数量，或者失败false
 
+-----
+
 ## <span id="execSql">execSql</span>
 ### 定义
     public mixed execSql(string sql, array params = null)
@@ -164,6 +177,8 @@ SQL语句
 绑定参数，如：array(":id" => 1)
 ### 返回值
 查询结果数组，或者操作布尔结果
+
+-----
 
 ## <span id="getrowcount">getRowCount</span>
 ### 定义
@@ -181,6 +196,8 @@ update或者delete影响的行数
 ### 返回值
 上一次insert产生的主键Id
 
+-----
+
 ## <span id="begin">begin</span>
 ### 定义
     public bool begin(void)
@@ -189,6 +206,8 @@ update或者delete影响的行数
 无
 ### 返回值
 成功true 失败false
+
+-----
 
 ## <span id="commit">commit</span>
 ### 定义
@@ -199,6 +218,8 @@ update或者delete影响的行数
 ### 返回值
 成功true 失败false
 
+-----
+
 ## <span id="rollback">rollback</span>
 ### 定义
     public bool rollback(void)
@@ -208,6 +229,8 @@ update或者delete影响的行数
 ### 返回值
 成功true 失败false
 
+-----
+
 ## <span id="gettransactionlevel">getTransactionLevel</span>
 ### 定义
     public int getTransactionLevel(void)
@@ -216,6 +239,8 @@ update或者delete影响的行数
 无
 ### 返回值
 事务嵌套等级
+
+-----
 
 ## <span id="close">close</span>
 ### 定义

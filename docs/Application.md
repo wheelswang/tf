@@ -15,8 +15,6 @@ public TF\\Session function [getSession](#getsession)(void)
 
 public TF\\Logger function [getLogger](#getlogger)(void)
 
------
-
 ## <span id="__construct">__construct</span>
 ### 定义
     public function __construct(string configFile, string configSection = null)
@@ -37,6 +35,8 @@ public TF\\Logger function [getLogger](#getlogger)(void)
 无
 ### 返回值
 TF\\Config实例
+
+-----
 
 ## <span id="getdb">getDB</span>
 ### 定义

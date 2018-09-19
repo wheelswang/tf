@@ -29,6 +29,8 @@ redis配置，如：array('server' => '127.0.0.1:6379', 'index' => 1)
 ### 返回值
 无
 
+-----
+
 ## <span id="start">start</span>
 ### 定义
     public void function start(void)
@@ -38,6 +40,8 @@ redis配置，如：array('server' => '127.0.0.1:6379', 'index' => 1)
 ### 返回值
 无
 
+-----
+
 ## <span id="get">get</span>
 ### 定义
     public mixed function get(string name)
@@ -46,6 +50,8 @@ redis配置，如：array('server' => '127.0.0.1:6379', 'index' => 1)
 名称
 ### 返回值
 变量值，不存在则返回null
+
+-----
 
 ## <span id="set">set</span>
 ### 定义
@@ -58,6 +64,8 @@ redis配置，如：array('server' => '127.0.0.1:6379', 'index' => 1)
 ### 返回值
 无
 
+-----
+
 ## <span id="del">del</span>
 ### 定义
     public void function del(string name)
@@ -67,6 +75,8 @@ redis配置，如：array('server' => '127.0.0.1:6379', 'index' => 1)
 ### 返回值
 无
 
+-----
+
 ## <span id="getsessionid">getSessionId</span>
 ### 定义
     public string function getSessionId(void)
@@ -74,6 +84,8 @@ redis配置，如：array('server' => '127.0.0.1:6379', 'index' => 1)
 无
 ### 返回值
 会话ID
+
+-----
 
 ## <span id="setsessionid">setSessionId</span>
 ### 定义
@@ -83,6 +95,8 @@ redis配置，如：array('server' => '127.0.0.1:6379', 'index' => 1)
 会话ID
 ### 返回值
 无
+
+-----
 
 ## <span id="destroy">destroy</span>
 ### 定义

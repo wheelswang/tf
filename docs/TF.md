@@ -40,6 +40,8 @@ public static void function [logError](#logerror)(string msg);
 ### 返回值
 当前环境，取自php.ini中的tf.environ，默认为product
 
+-----
+
 ## <span id="getapp">getApp</span>
 ### 定义
     public static TF\Application function getApp();
@@ -47,6 +49,8 @@ public static void function [logError](#logerror)(string msg);
 无
 ### 返回值
 当前Application实例
+
+-----
 
 ## <span id="getconfig">getConfig</span>
 ### 定义
@@ -57,6 +61,8 @@ TF::getApp()->getConfig的别名
 ### 返回值
 TF\Config实例
 
+-----
+
 ## <span id="geterrorcode">getErrorCode</span>
 ### 定义
     public static int function getErrorCode()
@@ -64,6 +70,8 @@ TF\Config实例
 无
 ### 返回值
 错误码
+
+-----
 
 ## <span id="geterrormsg">getErrorMsg</span>
 ### 定义
@@ -73,6 +81,8 @@ TF\Config实例
 ### 返回值
 错误信息
 
+-----
+
 ## <span id="geterrordetail">getErrorDetail</span>
 ### 定义
     public static string function getErrorDetail()
@@ -80,6 +90,8 @@ TF\Config实例
 无
 ### 返回值
 错误详情
+
+-----
 
 ## <span id="seterror">setError</span>
 ### 定义
@@ -94,6 +106,8 @@ TF\Config实例
 ### 返回值
 无
 
+-----
+
 ## <span id="seterrormsg">setErrorMsg</span>
 ### 定义
     public static void function setErrorMsg(string errorMsg, string errorDetail = '')
@@ -105,6 +119,8 @@ TF\Config实例
 ### 返回值
 无
 
+-----
+
 ## <span id="getdb">getDB</span>
 ### 定义
     public static TF\DB function getDB()
@@ -113,6 +129,8 @@ TF\Config实例
 无
 ### 返回值
 TF\DB实例
+
+-----
 
 ## <span id="getredis">getRedis</span>
 ### 定义
@@ -123,6 +141,8 @@ TF\DB实例
 ### 返回值
 TF\Redis实例
 
+-----
+
 ## <span id="getsession">getSession</span>
 ### 定义
     public static TF\Session function getSession()
@@ -131,6 +151,8 @@ TF\Redis实例
 无
 ### 返回值
 TF\Session实例
+
+-----
 
 ## <span id="loginfo">logInfo</span>
 ### 定义
@@ -142,6 +164,8 @@ TF\Session实例
 ### 返回值
 无
 
+-----
+
 ## <span id="logwarn">logWarn</span>
 ### 定义
     public static void function logWarn(string msg)
@@ -151,6 +175,8 @@ TF\Session实例
 内容
 ### 返回值
 无
+
+-----
 
 ## <span id="logerror">logError</span>
 ### 定义

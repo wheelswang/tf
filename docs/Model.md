@@ -11,7 +11,7 @@ const STRING = 3
 
 const BOOL = 4
 
-protected $\_fields = null
+protected [$\_fields](#fields) = null
 
 ## 方法
 public [__construct](#__construct)(void)
@@ -34,6 +34,8 @@ public array [toArray](#toArray)(bool camelCase = false)
 无
 ### 返回值
 无
+
+-----
 
 ## <span id="toArray">toArray</span>
 ### 定义

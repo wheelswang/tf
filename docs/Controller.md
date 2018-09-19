@@ -28,6 +28,8 @@ public void function [error](#error)(string errMsg)
 ### 返回值
 TF\Request实例
 
+-----
+
 ## <span id="getrouter">getRouter</span>
 ### 定义
     public TF\Router function getRouter(void)
@@ -35,6 +37,8 @@ TF\Request实例
 无
 ### 返回值
 TF\Router实例
+
+-----
 
 ## <span id="assign">assign</span>
 ### 定义
@@ -48,6 +52,8 @@ TF\Router实例
 ### 返回值
 无
 
+-----
+
 ## <span id="render">render</span>
 ### 定义
     public string function render(string tplName = null, array params = array())
@@ -58,6 +64,8 @@ TF\Router实例
 变量数组
 ### 返回值
 渲染后的视图字符串，模板文件不存在返回null
+
+-----
 
 ## <span id="display">display</span>
 ### 定义
@@ -71,6 +79,8 @@ TF\Router实例
 ### 返回值
 无
 
+-----
+
 ## <span id="ajaxerror">ajaxError</span>
 ### 定义
     public void function ajaxError(string errMsg, int errCode = 100)
@@ -83,6 +93,8 @@ TF\Router实例
 ### 返回值
 无
 
+-----
+
 ## <span id="ajaxsuccess">ajaxSuccess</span>
 ### 定义
     public void function ajaxSuccess(array data = {})
@@ -92,6 +104,8 @@ TF\Router实例
 需要返回的数组
 ### 返回值
 无
+
+-----
 
 ## <span id="error">error</span>
 ### 定义

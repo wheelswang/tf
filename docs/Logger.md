@@ -25,6 +25,8 @@ public void function [error](#error)(string msg)
 ### 返回值
 无
 
+-----
+
 ## <span id="setpath">setPath</span>
 ### 定义
     public void function setPath(string path)
@@ -33,6 +35,8 @@ public void function [error](#error)(string msg)
 日志目录
 ### 返回值
 无
+
+-----
 
 ## <span id="info">info</span>
 ### 定义
@@ -43,6 +47,8 @@ public void function [error](#error)(string msg)
 ### 返回值
 无
 
+-----
+
 ## <span id="warn">warn</span>
 ### 定义
     public void function warn(string msg)
@@ -51,6 +57,8 @@ public void function [error](#error)(string msg)
 内容
 ### 返回值
 无
+
+-----
 
 ## <span id="error">error</span>
 ### 定义

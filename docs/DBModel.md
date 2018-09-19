@@ -18,7 +18,7 @@ const STRING = 3
 
 const BOOL = 4
 
-protected $\_fields = null
+protected [$\_fields](Model.md#fields) = null
 
 ## 方法
 public static model [query](#query)(mixed condition = null, array params = null, mixed fields = null, bool forUpdate = false)
@@ -46,6 +46,7 @@ public static int [count](#count)(mixed condition = null, array params = null)
 ## <span id="pk">$\_pk</span>
 主键名称，默认为id
 
+
 ## <span id="table">$\_table</span>
 表名
 
@@ -65,6 +66,8 @@ public static int [count](#count)(mixed condition = null, array params = null)
 ### 返回值
 模型实例，空结果返回null，出错返回false
 
+-----
+
 ## <span id="querybypk">queryByPk</span>
 ### 定义
     public model queryByPk(string id, mixed fields = null, bool forUpdate)
@@ -78,6 +81,8 @@ public static int [count](#count)(mixed condition = null, array params = null)
 行锁 默认false
 ### 返回值
 模型实例，空结果返回null，出错返回false
+
+-----
 
 ## <span id="queryall">queryAll</span>
 ### 定义
@@ -95,6 +100,8 @@ public static int [count](#count)(mixed condition = null, array params = null)
 ### 返回值
 模型实例数组，出错返回false
 
+-----
+
 ## <span id="update">update</span>
 ### 定义
     public bool update(array fields = null)
@@ -103,6 +110,8 @@ public static int [count](#count)(mixed condition = null, array params = null)
 需要更新的字段数组，如不传则更新全部字段
 ### 返回值
 成功true 失败false
+
+-----
 
 ## <span id="update_static">update</span>
 ### 定义
@@ -117,6 +126,8 @@ public static int [count](#count)(mixed condition = null, array params = null)
 ### 返回值
 成功true 失败false
 
+-----
+
 ## <span id="updatebypk">updateByPk</span>
 ### 定义
     public static bool updateByPk(string id, array data)
@@ -128,6 +139,8 @@ public static int [count](#count)(mixed condition = null, array params = null)
 ### 返回值
 成功true 失败false
 
+-----
+
 ## <span id="insert">insert</span>
 ### 定义
     public bool insert(void)
@@ -136,6 +149,8 @@ public static int [count](#count)(mixed condition = null, array params = null)
 ### 返回值
 成功true 失败false
 
+-----
+
 ## <span id="delete">delete</span>
 ### 定义
     public bool delete(void)
@@ -143,6 +158,8 @@ public static int [count](#count)(mixed condition = null, array params = null)
 无
 ### 返回值
 成功true 失败false
+
+-----
 
 ## <span id="delete_static">delete</span>
 ### 定义
@@ -156,6 +173,8 @@ public static int [count](#count)(mixed condition = null, array params = null)
 ### 返回值
 成功true 失败false
 
+-----
+
 ## <span id="deletebypk">deleteByPk</span>
 ### 定义
     public static bool deleteByPk(string id)
@@ -164,6 +183,8 @@ public static int [count](#count)(mixed condition = null, array params = null)
 主键id
 ### 返回值
 成功true 失败false
+
+-----
 
 ## <span id="count">count</span>
 ### 定义
