@@ -13,38 +13,44 @@
     #tf.environ=product
 
 ## 项目结构
-* application\\common
-* application\\common\\library&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;公共类库
-* application\\common\\model&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;公共model
-* application\\console&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;命令行脚本
-* application\\console\\run&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;命令行执行程序
-* application\\web  
-* application\\web\\init.php&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;模块初始化执行脚本
-* application\\web\\controller&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;控制器
-* application\\web\\view&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;视图
-* application\\log\\web&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;web日志
-* application\\log\\console&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;命令行日志
-* application\\conf
-* application\\conf\\application.ini&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;配置文件
-* application\\public\\index.php&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;web入口文件
+|  文件    | 说明     |
+| :------------- | :------------- |
+| application\\common       | - |
+| application\\common\\library | 公共类库 |
+| application\\common\\model | 公共model |
+| application\\console | 命令行脚本 |
+| application\\console\\run | 命令行执行程序 |
+| application\\web | web模块目录 |
+| application\\web\\init.php | 模块初始化执行脚本 |
+| application\\web\\controller | 控制器目录 |
+| application\\web\\view | 视图目录 |
+| application\\log\\web | web日志目录 |
+| application\\log\\console | 命令行日志目录 |
+| application\\conf | 配置文件目录 |
+| application\\conf\\application.ini | 配置文件 |
+| application\\public\\index.php | web入口文件 |
+
 
 ## 多模块项目结构
-* application\\common
-* application\\common\\library
-* application\\common\\model
-* application\\console
-* application\\web
-* application\\web\\模块1\init.php
-* application\\web\\模块1\controller
-* application\\web\\模块1\view
-* application\\web\\模块2\init.php
-* application\\web\\模块2\controller
-* application\\web\\模块2\view
-* application\\log\\web
-* application\\log\console
-* application\\conf
-* application\\conf\\application.ini
-* application\\public\\index.php
+|  文件    | 说明     |
+| :------------- | :------------- |
+| application\\common       | - |
+| application\\common\\library | 公共类库 |
+| application\\common\\model | 公共model |
+| application\\console | 命令行脚本 |
+| application\\console\\run | 命令行执行程序 |
+| application\\web | web模块目录 |
+| application\\web\\模块1\\init.php | 模块1初始化执行脚本 |
+| application\\web\\模块1\\controller | 模块1控制器目录 |
+| application\\web\\模块1\\view | 模块1视图目录 |
+| application\\web\\模块2\\init.php | 模块2初始化执行脚本 |
+| application\\web\\模块2\\controller | 模块2控制器目录 |
+| application\\web\\模块2\\view | 模块2视图目录 |
+| application\\log\\web | web日志目录 |
+| application\\log\\console | 命令行日志目录 |
+| application\\conf | 配置文件目录 |
+| application\\conf\\application.ini | 配置文件 |
+| application\\public\\index.php | web入口文件 |
 
 ## 配置文件
 application\\conf\\application.ini
@@ -53,7 +59,9 @@ application\\conf\\application.ini
     root=ROOT_PATH
     module.default="www"
     module.availables="www,pay"
-    #uri重定向(可选)
+    #类加载目录（可选）
+    loader.path=ROOT_PATH "/common/library"
+    #uri重定向（可选）
     router.rules.0.search="/\/room\/(\d+)/i"
     router.rules.0.replace="/room/index/id/$1"
 
