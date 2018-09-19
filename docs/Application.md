@@ -28,7 +28,7 @@ public TF\\Logger function [getLogger](#getlogger)(void)
 
 -----
 
-## <span id="getconfig">getConfig</span>
+## getConfig
 ### 定义
     public TF\Config function getConfig()
 ### 参数
