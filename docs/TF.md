@@ -32,7 +32,7 @@ public static void function [logWarn](#logwarn)(string msg);
 
 public static void function [logError](#logerror)(string msg);
 
-## <span id="getenv">getEnv</span>
+## getEnv
 ### 定义
     public static string function getEnv()
 ### 参数
@@ -42,7 +42,7 @@ public static void function [logError](#logerror)(string msg);
 
 -----
 
-## <span id="getapp">getApp</span>
+## getApp
 ### 定义
     public static TF\Application function getApp();
 ### 参数
@@ -52,7 +52,7 @@ public static void function [logError](#logerror)(string msg);
 
 -----
 
-## <span id="getconfig">getConfig</span>
+## getConfig
 ### 定义
     public static TF\Config function getConfig();
 TF::getApp()->getConfig的别名
@@ -63,7 +63,7 @@ TF\Config实例
 
 -----
 
-## <span id="geterrorcode">getErrorCode</span>
+## getErrorCode
 ### 定义
     public static int function getErrorCode()
 ### 参数
@@ -73,7 +73,7 @@ TF\Config实例
 
 -----
 
-## <span id="geterrormsg">getErrorMsg</span>
+## getErrorMsg
 ### 定义
     public static string function getErrorMsg()
 ### 参数
@@ -83,7 +83,7 @@ TF\Config实例
 
 -----
 
-## <span id="geterrordetail">getErrorDetail</span>
+## getErrorDetail
 ### 定义
     public static string function getErrorDetail()
 ### 参数
@@ -93,7 +93,7 @@ TF\Config实例
 
 -----
 
-## <span id="seterror">setError</span>
+## setError
 ### 定义
     public static void function setError(int errorCode, string errorMsg = '', string errorDetail = '')
 ### 参数
@@ -108,7 +108,7 @@ TF\Config实例
 
 -----
 
-## <span id="seterrormsg">setErrorMsg</span>
+## setErrorMsg
 ### 定义
     public static void function setErrorMsg(string errorMsg, string errorDetail = '')
 ### 参数
@@ -121,7 +121,7 @@ TF\Config实例
 
 -----
 
-## <span id="getdb">getDB</span>
+## getDB
 ### 定义
     public static TF\DB function getDB()
 此函数是TF::getApp()->getDB的别名
@@ -132,7 +132,7 @@ TF\DB实例
 
 -----
 
-## <span id="getredis">getRedis</span>
+## getRedis
 ### 定义
     public static TF\Redis function getRedis()
 此函数是TF::getApp()->getRedis的别名
@@ -143,7 +143,7 @@ TF\Redis实例
 
 -----
 
-## <span id="getsession">getSession</span>
+## getSession
 ### 定义
     public static TF\Session function getSession()
 此函数是TF::getApp()->getSession的别名
@@ -154,7 +154,7 @@ TF\Session实例
 
 -----
 
-## <span id="loginfo">logInfo</span>
+## logInfo
 ### 定义
     public static void function logInfo(string msg)
 此函数是TF::getApp()->getLogger()->info的别名
@@ -166,7 +166,7 @@ TF\Session实例
 
 -----
 
-## <span id="logwarn">logWarn</span>
+## logWarn
 ### 定义
     public static void function logWarn(string msg)
 此函数是TF::getApp()->getLogger()->warn的别名
@@ -178,7 +178,7 @@ TF\Session实例
 
 -----
 
-## <span id="logerror">logError</span>
+## logError
 ### 定义
     public static void function logError(string msg)
 此函数是TF::getApp()->getLogger()->error的别名

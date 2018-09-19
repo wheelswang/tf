@@ -32,7 +32,7 @@ public int [getTransactionLevel](#gettransactionlevel)(void)
 
 public void [close](#close)(void)
 
-## <span id="__construct">__construct</span>
+## __construct
 ### 定义
     public void __construct(string server, string user, string password, string dbname, string charset = "utf8", string persistent = 0, string slaveConfigs = null)
 ### 参数
@@ -67,7 +67,7 @@ public void [close](#close)(void)
 
 -----
 
-## <span id="query">query</span>
+## query
 ### 定义
     public array query(string table, mixed condition = null, array params = null, mixed fields = "*", bool forUpdate = false)
 ### 参数
@@ -86,7 +86,7 @@ public void [close](#close)(void)
 
 -----
 
-## <span id="queryall">queryAll</span>
+## queryAll
 ### 定义
     public array queryAll(string table, mixed condition = null, array params = null, mixed fields = "*", bool forUpdate = false);
 ### 参数
@@ -105,7 +105,7 @@ public void [close](#close)(void)
 
 -----
 
-## <span id="update">update</h2>
+## update
 ### 定义
     public bool update(string table, array data, mixed condition, array params = null)
 ### 参数
@@ -123,7 +123,7 @@ public void [close](#close)(void)
 
 -----
 
-## <span id="insert">insert</span>
+## insert
 ### 定义
     public bool insert(string table, array data)
 ### 参数
@@ -136,7 +136,7 @@ public void [close](#close)(void)
 
 -----
 
-## <span id="delete">delete</span>
+## delete
 ### 定义
     public bool delete(string table, mixed condition, array params = null)
 ### 参数
@@ -152,7 +152,7 @@ public void [close](#close)(void)
 
 -----
 
-## <span id="count">count</span>
+## count
 ### 定义
     public int count(string table, mixed condition = null, array params = null)
 ### 参数
@@ -167,7 +167,7 @@ public void [close](#close)(void)
 
 -----
 
-## <span id="execSql">execSql</span>
+## execSql
 ### 定义
     public mixed execSql(string sql, array params = null)
 ### 参数
@@ -180,7 +180,7 @@ SQL语句
 
 -----
 
-## <span id="getrowcount">getRowCount</span>
+## getRowCount
 ### 定义
     public int getRowCount(void)
 ### 参数
@@ -188,7 +188,7 @@ SQL语句
 ### 返回值
 update或者delete影响的行数
 
-## <span id="getlastinsertid">getLastInsertId</span>
+## getLastInsertId
 ### 定义
     public string getLastInsertId(void)
 ### 参数
@@ -198,7 +198,7 @@ update或者delete影响的行数
 
 -----
 
-## <span id="begin">begin</span>
+## begin
 ### 定义
     public bool begin(void)
 开启事务
@@ -209,7 +209,7 @@ update或者delete影响的行数
 
 -----
 
-## <span id="commit">commit</span>
+## commit
 ### 定义
     public bool commit(void)
 提交事务
@@ -220,7 +220,7 @@ update或者delete影响的行数
 
 -----
 
-## <span id="rollback">rollback</span>
+## rollback
 ### 定义
     public bool rollback(void)
 回滚事务
@@ -231,7 +231,7 @@ update或者delete影响的行数
 
 -----
 
-## <span id="gettransactionlevel">getTransactionLevel</span>
+## getTransactionLevel
 ### 定义
     public int getTransactionLevel(void)
 获取事务嵌套等级
@@ -242,7 +242,7 @@ update或者delete影响的行数
 
 -----
 
-## <span id="close">close</span>
+## close
 ### 定义
     public void close(void)
 关闭数据库连接

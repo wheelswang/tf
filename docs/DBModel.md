@@ -6,9 +6,9 @@
 TF\\Model
 
 ## 属性
-protected [$\_pk](#pk) = 'id'
+protected [$\_pk](#_pk) = 'id'
 
-protected [$\_table](#table) = null
+protected [$\_table](#_table) = null
 ### 以下继承自TF\Model
 const INT = 1
 
@@ -18,7 +18,7 @@ const STRING = 3
 
 const BOOL = 4
 
-protected [$\_fields](Model.md#fields) = null
+protected [$\_fields](Model.md#_fields) = null
 
 ## 方法
 public static model [query](#query)(mixed condition = null, array params = null, mixed fields = null, bool forUpdate = false)
@@ -43,14 +43,14 @@ public static bool [deleteByPk](#deletebypk)(string id)
 
 public static int [count](#count)(mixed condition = null, array params = null)
 
-## <span id="pk">$\_pk</span>
+## $\_pk
 主键名称，默认为id
 
 
-## <span id="table">$\_table</span>
+## $\_table
 表名
 
-## <span id="query">query</span>
+## query
 ### 定义
     public model query(mixed condition = null, array params = null, mixed fields = null, bool forUpdate = false)
 查询单条结果
@@ -68,7 +68,7 @@ public static int [count](#count)(mixed condition = null, array params = null)
 
 -----
 
-## <span id="querybypk">queryByPk</span>
+## queryByPk
 ### 定义
     public model queryByPk(string id, mixed fields = null, bool forUpdate)
 根据主键查询记录
@@ -84,7 +84,7 @@ public static int [count](#count)(mixed condition = null, array params = null)
 
 -----
 
-## <span id="queryall">queryAll</span>
+## queryAll
 ### 定义
     public model queryAll(mixed condition = null, array params = null, mixed fields = null, bool forUpdate = false)
 查询所有结果
@@ -102,7 +102,7 @@ public static int [count](#count)(mixed condition = null, array params = null)
 
 -----
 
-## <span id="update">update</span>
+## update
 ### 定义
     public bool update(array fields = null)
 ### 参数
@@ -113,7 +113,7 @@ public static int [count](#count)(mixed condition = null, array params = null)
 
 -----
 
-## <span id="update_static">update</span>
+## update
 ### 定义
     public static bool update(array data, mixed condition, array params = null)
 ### 参数
@@ -128,7 +128,7 @@ public static int [count](#count)(mixed condition = null, array params = null)
 
 -----
 
-## <span id="updatebypk">updateByPk</span>
+## updateByPk
 ### 定义
     public static bool updateByPk(string id, array data)
 ### 参数
@@ -141,7 +141,7 @@ public static int [count](#count)(mixed condition = null, array params = null)
 
 -----
 
-## <span id="insert">insert</span>
+## insert
 ### 定义
     public bool insert(void)
 ### 参数
@@ -151,7 +151,7 @@ public static int [count](#count)(mixed condition = null, array params = null)
 
 -----
 
-## <span id="delete">delete</span>
+## delete
 ### 定义
     public bool delete(void)
 ### 参数
@@ -161,7 +161,7 @@ public static int [count](#count)(mixed condition = null, array params = null)
 
 -----
 
-## <span id="delete_static">delete</span>
+## delete
 ### 定义
     public static bool delete(mixed condition, array params = null)
 ### 参数
@@ -175,7 +175,7 @@ public static int [count](#count)(mixed condition = null, array params = null)
 
 -----
 
-## <span id="deletebypk">deleteByPk</span>
+## deleteByPk
 ### 定义
     public static bool deleteByPk(string id)
 ### 参数
@@ -186,7 +186,7 @@ public static int [count](#count)(mixed condition = null, array params = null)
 
 -----
 
-## <span id="count">count</span>
+## count
 ### 定义
     public static int count(mixed condition = null, array params = null)
 ### 参数

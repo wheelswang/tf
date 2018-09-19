@@ -20,7 +20,7 @@ public void function [ajaxSuccess](#ajaxsuccess)(array data = {})
 
 public void function [error](#error)(string errMsg)
 
-## <span id="getrequest">getRequest<span>
+## getRequest
 ### 定义
     public TF\Request function getRequest(void)
 ### 参数
@@ -30,7 +30,7 @@ TF\Request实例
 
 -----
 
-## <span id="getrouter">getRouter</span>
+## getRouter
 ### 定义
     public TF\Router function getRouter(void)
 ### 参数
@@ -40,7 +40,7 @@ TF\Router实例
 
 -----
 
-## <span id="assign">assign</span>
+## assign
 ### 定义
     public void function assign(mixed arg1, mixed arg2)
 此函数支持两种传参方式
@@ -54,7 +54,7 @@ TF\Router实例
 
 -----
 
-## <span id="render">render</span>
+## render
 ### 定义
     public string function render(string tplName = null, array params = array())
 ### 参数
@@ -67,7 +67,7 @@ TF\Router实例
 
 -----
 
-## <span id="display">display</span>
+## display
 ### 定义
     public void function display(string tplName = null, array params = array())
 输出渲染后的模板
@@ -81,7 +81,7 @@ TF\Router实例
 
 -----
 
-## <span id="ajaxerror">ajaxError</span>
+## ajaxError
 ### 定义
     public void function ajaxError(string errMsg, int errCode = 100)
 输出错误，格式为{"errCode": 100, "errMsg": "", "data": {}}
@@ -95,7 +95,7 @@ TF\Router实例
 
 -----
 
-## <span id="ajaxsuccess">ajaxSuccess</span>
+## ajaxSuccess
 ### 定义
     public void function ajaxSuccess(array data = {})
 输出成功信息，格式为{"errCode": 0, "errMsg": "", "data": {}}
@@ -107,7 +107,7 @@ TF\Router实例
 
 -----
 
-## <span id="error">error</span>
+## error
 ### 定义
     public void function error(string errMsg)
 函数会初始化ErrorController，并且调用其index方法，

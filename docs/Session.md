@@ -20,7 +20,7 @@ public void function [setSessionId](#setsessionid)(string sessionId)
 
 public void function [destroy](#destroy)(void)
 
-## <span id="__construct">__construct</span>
+## __construct
 ### 定义
     public void function __construct(array config)
 ### 参数
@@ -31,7 +31,7 @@ redis配置，如：array('server' => '127.0.0.1:6379', 'index' => 1)
 
 -----
 
-## <span id="start">start</span>
+## start
 ### 定义
     public void function start(void)
 开始会话
@@ -42,7 +42,7 @@ redis配置，如：array('server' => '127.0.0.1:6379', 'index' => 1)
 
 -----
 
-## <span id="get">get</span>
+## get
 ### 定义
     public mixed function get(string name)
 ### 参数
@@ -53,7 +53,7 @@ redis配置，如：array('server' => '127.0.0.1:6379', 'index' => 1)
 
 -----
 
-## <span id="set">set</span>
+## set
 ### 定义
     public void function set(string name, mixed value)
 ### 参数
@@ -66,7 +66,7 @@ redis配置，如：array('server' => '127.0.0.1:6379', 'index' => 1)
 
 -----
 
-## <span id="del">del</span>
+## del
 ### 定义
     public void function del(string name)
 ### 参数
@@ -77,7 +77,7 @@ redis配置，如：array('server' => '127.0.0.1:6379', 'index' => 1)
 
 -----
 
-## <span id="getsessionid">getSessionId</span>
+## getSessionId
 ### 定义
     public string function getSessionId(void)
 ### 参数
@@ -87,7 +87,7 @@ redis配置，如：array('server' => '127.0.0.1:6379', 'index' => 1)
 
 -----
 
-## <span id="setsessionid">setSessionId</span>
+## setSessionId
 ### 定义
     public void function setSessionId(string sessionId)
 ### 参数
@@ -98,7 +98,7 @@ redis配置，如：array('server' => '127.0.0.1:6379', 'index' => 1)
 
 -----
 
-## <span id="destroy">destroy</span>
+## destroy
 ### 定义
     public void function destroy(void)
 销毁会话

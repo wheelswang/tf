@@ -14,7 +14,7 @@ public void function [warn](#info)(string msg)
 
 public void function [error](#error)(string msg)
 
-## <span id="__construct">__construct</span>
+## __construct
 ### 定义
     public function __construct(string path, int maxSize = 50 x 1024 x 1024)
 ### 参数
@@ -27,7 +27,7 @@ public void function [error](#error)(string msg)
 
 -----
 
-## <span id="setpath">setPath</span>
+## setPath
 ### 定义
     public void function setPath(string path)
 ### 参数
@@ -38,7 +38,7 @@ public void function [error](#error)(string msg)
 
 -----
 
-## <span id="info">info</span>
+## info
 ### 定义
     public void function info(string msg)
 ### 参数
@@ -49,7 +49,7 @@ public void function [error](#error)(string msg)
 
 -----
 
-## <span id="warn">warn</span>
+## warn
 ### 定义
     public void function warn(string msg)
 ### 参数
@@ -60,7 +60,7 @@ public void function [error](#error)(string msg)
 
 -----
 
-## <span id="error">error</span>
+## error
 ### 定义
     public void function error(string msg)
 ### 参数

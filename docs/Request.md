@@ -16,7 +16,7 @@ public string function [getUrl](#geturl)()
 
 public bool function [isAjax](#isajax)()
 
-## <span id="__construct">__construct</span>
+## __construct
 ### 定义
     public function __construct()
 ### 参数
@@ -26,7 +26,7 @@ public bool function [isAjax](#isajax)()
 
 -----
 
-## <span id="getschema">getSchema</span>
+## getSchema
 ### 定义
     public string function getSchema()
 ### 参数
@@ -36,7 +36,7 @@ http 或者 https
 
 -----
 
-## <span id="getdomain">getDomain</span>
+## getDomain
 ### 定义
     public string function getDomain()
 ### 参数
@@ -46,7 +46,7 @@ http 或者 https
 
 -----
 
-## <span id="geturi">getUri</span>
+## getUri
 ### 定义
     public string function getUri()
 ### 参数
@@ -56,7 +56,7 @@ http 或者 https
 
 -----
 
-## <span id="geturl">getUrl</span>
+## getUrl
 ### 定义
     public string function getUrl()
 ### 参数
@@ -66,10 +66,10 @@ http 或者 https
 
 -----
 
-## <span id="isajax">isAjax</span>
+## isAjax
 ### 定义
     public bool function isAjax()
 ### 参数
 无
-返回值
+### 返回值
 true 或者 false

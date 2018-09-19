@@ -11,15 +11,15 @@ const STRING = 3
 
 const BOOL = 4
 
-protected [$\_fields](#fields) = null
+protected [$\_fields](#_fields) = null
 
 ## 方法
 public [__construct](#__construct)(void)
 
-public array [toArray](#toArray)(bool camelCase = false)
+public array [toArray](#toarray)(bool camelCase = false)
 
 
-## <span id="fields">$\_fields</span>
+## $\_fields
 字段定义，如：
 
     array(
@@ -27,7 +27,7 @@ public array [toArray](#toArray)(bool camelCase = false)
         'field2' => array(self::STRING, "default");
     );
 
-## <span id="__construct">__construct</span>
+## __construct
 ### 定义
     public __construct(void)
 ### 参数
@@ -37,7 +37,7 @@ public array [toArray](#toArray)(bool camelCase = false)
 
 -----
 
-## <span id="toArray">toArray</span>
+## toArray
 ### 定义
     public array toArray(bool camelCase = false)
 ### 参数

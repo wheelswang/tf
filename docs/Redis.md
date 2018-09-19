@@ -8,7 +8,7 @@ public function __construct(string server, string password = '', int index = 0, 
 
 内部使用了__call方法, 公共方法与PhpRedis一致，具体方法参见https://github.com/phpredis/phpredis
 
-## <span id="__construct">__construct</span>
+## __construct
 ### 定义
     public function __construct(string server, string password = '', int index = 0, bool serialize = false, string prefix = '')
 ### 参数

@@ -38,7 +38,7 @@ TF\\Config实例
 
 -----
 
-## <span id="getdb">getDB</span>
+## getDB
 ### 定义
     public TF\DB function getDB()
 ### 参数
@@ -48,7 +48,7 @@ TF\\DB实例
 
 -----
 
-## <span id="getredis">getRedis</span>
+## getRedis
 ### 定义
     public TF\Redis function getRedis()
 ### 参数
@@ -58,7 +58,7 @@ TF\\Redis实例
 
 -----
 
-## <span id="getsession">getSession</span>
+## getSession
 ### 定义
     public TF\Session function getSession()
 ### 参数
@@ -68,7 +68,7 @@ TF\\Session实例
 
 -----
 
-## <span id="getlogger">getLogger</span>
+## getLogger
 ### 定义
     public TF\\Logger function getLogger()
 ### 参数

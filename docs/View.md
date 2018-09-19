@@ -18,7 +18,7 @@ public array function [getVars](#getvars)(void)
 
 public TF\Controller function [getController](#getcontroller)(void)
 
-## <span id="__construct">__construct</span>
+## __construct
 ### 定义
     public void function __construct(string tplDir, string tplExt = 'php')
 ### 参数
@@ -31,7 +31,7 @@ public TF\Controller function [getController](#getcontroller)(void)
 
 -----
 
-## <span id="assign">assign</span>
+## assign
 ### 定义
     public void function assign(mixed arg1, mixed arg2)
 此函数支持两种传参方式
@@ -45,7 +45,7 @@ public TF\Controller function [getController](#getcontroller)(void)
 
 -----
 
-## <span id="render">render</span>
+## render
 ### 定义
     public string function render(string tplName, array params = array())
 渲染模板
@@ -59,7 +59,7 @@ public TF\Controller function [getController](#getcontroller)(void)
 
 -----
 
-## <span id="display">display</span>
+## display
 ### 定义
     public void function display(string tplName, array params = array())
 渲染模板并输出
@@ -73,7 +73,7 @@ public TF\Controller function [getController](#getcontroller)(void)
 
 -----
 
-## <span id="getvar">getVar</span>
+## getVar
 ### 定义
     public mixed function getVar(string name)
 获取模板变量
@@ -85,7 +85,7 @@ public TF\Controller function [getController](#getcontroller)(void)
 
 -----
 
-## <span id="getvars">getVars</span>
+## getVars
 ### 定义
     public array function getVars(void)
 获取所有变量
@@ -96,7 +96,7 @@ public TF\Controller function [getController](#getcontroller)(void)
 
 -----
 
-## <span id="getcontroller">getController</span>
+## getController
 ### 定义
     public TF\Controller function getController(void)
 获取控制器实例

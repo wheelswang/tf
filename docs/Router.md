@@ -22,7 +22,7 @@ public bool function [addRules](#addrules)(array rules)
 
 public array function [getRules](#getrules)(void)
 
-## <span id="__construct">__construct</span>
+## __construct
 ### 定义
     public function __construct(string url)
 ### 参数
@@ -33,7 +33,7 @@ public array function [getRules](#getrules)(void)
 
 -----
 
-## <span id="getmodule">getModule</span>
+## getModule
 ### 定义
     public string function getModule(void)
 ### 参数
@@ -43,7 +43,7 @@ public array function [getRules](#getrules)(void)
 
 -----
 
-## <span id="getcontroller">getController</span>
+## getController
 ### 定义
     public string function getController(void)
 ### 参数
@@ -53,7 +53,7 @@ public array function [getRules](#getrules)(void)
 
 -----
 
-## <span id="getaction">getAction</span>
+## getAction
 ### 定义
     public string function getAction(void)
 ### 参数
@@ -63,7 +63,7 @@ public array function [getRules](#getrules)(void)
 
 -----
 
-## <span id="getparam">getparam</span>
+## getparam
 ### 定义
     public string function getParam(string name)
 获取uri携带的参数，注意不是$_GET参数，而是由路由解析后得到的参数 如：
@@ -76,7 +76,7 @@ public array function [getRules](#getrules)(void)
 
 -----
 
-## <span id="getparams">getParams</span>
+## getParams
 ### 定义
     public array function getParams(void)
 ### 参数
@@ -86,7 +86,7 @@ public array function [getRules](#getrules)(void)
 
 -----
 
-## <span id="addrule">addRule</span>
+## addRule
 ### 定义
     public bool function addRule(string search, string replace)
 ### 参数
@@ -99,7 +99,7 @@ public array function [getRules](#getrules)(void)
 
 -----
 
-## <span id="addrules">addRules</span>
+## addRules
 ### 定义
     public bool function addRules(array rules)
 用来添加一组规则
@@ -111,7 +111,7 @@ key=>value形式的规则 如：array('/\/room\/(\d+)\/i' => '/room/index/id/$1'
 
 -----
 
-## <span id="getrules">getRules</span>
+## getRules
 ### 定义
     public array function getRules(void)
 ### 参数

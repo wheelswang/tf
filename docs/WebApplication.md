@@ -23,7 +23,7 @@ public TF\\Session function [getSession](Application.md#getsession)(void)
 
 public TF\\Logger function [getLogger](Application.md#getlogger)(void)
 
-## <span id="__construct">__construct</span>
+## __construct
 ### 定义
     public function __construct(string configFile, string configSection = null)
 ### 参数
@@ -36,7 +36,7 @@ public TF\\Logger function [getLogger](Application.md#getlogger)(void)
 
 -----
 
-## <span id="run">run</span>
+## run
 ### 定义
     public void function run(void)
 ### 参数
@@ -46,7 +46,7 @@ public TF\\Logger function [getLogger](Application.md#getlogger)(void)
 
 -----
 
-## <span id="setautodisplay">setAutoDisplay</span>
+## setAutoDisplay
 ### 定义
     public void function setAutoDisplay(bool autoDisplay)
 ### 参数

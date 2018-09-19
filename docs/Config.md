@@ -8,7 +8,7 @@ public mixed function [get](#get)(string name)
 
 public array function [getAll](#getall)(void)
 
-## <span id="__construct">__construct</span>
+## __construct
 ### 定义
     public function [__construct](#__construct)(string file, string section = null)
 ### 参数
@@ -21,7 +21,7 @@ ini配置文件路径
 
 -----
 
-## <span id="get">get</span>
+## get
 ### 定义
     public mixed function get(string name)
 ### 参数
@@ -32,7 +32,7 @@ name对应的配置数据，如不存在返回null
 
 -----
 
-## <span id="getall">getAll</span>
+## getAll
 ### 定义
     public array function getAll()
 ### 参数
