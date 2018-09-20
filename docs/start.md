@@ -26,8 +26,8 @@
 | application\\web\\view | 视图目录 |
 | application\\log\\web | web日志目录 |
 | application\\log\\console | 命令行日志目录 |
-| application\\conf | 配置文件目录 |
-| application\\conf\\application.ini | 配置文件 |
+| application\\config | 配置文件目录 |
+| application\\config\\application.ini | 配置文件 |
 | application\\public\\index.php | web入口文件 |
 
 
@@ -48,8 +48,8 @@
 | application\\web\\模块2\\view | 模块2视图目录 |
 | application\\log\\web | web日志目录 |
 | application\\log\\console | 命令行日志目录 |
-| application\\conf | 配置文件目录 |
-| application\\conf\\application.ini | 配置文件 |
+| application\\config | 配置文件目录 |
+| application\\config\\application.ini | 配置文件 |
 | application\\public\\index.php | web入口文件 |
 
 ## 配置文件
@@ -60,7 +60,7 @@ application\\conf\\application.ini
     module.default="www"
     module.availables="www,pay"
     #类加载目录（可选）
-    loader.path=ROOT_PATH "/common/library"
+    loader.paths.0=ROOT_PATH "/common/library"
     #uri重定向（可选）
     router.rules.0.search="/\/room\/(\d+)/i"
     router.rules.0.replace="/room/index/id/$1"
@@ -105,7 +105,7 @@ application\\public\\index.php
 
     <?php
     define('ROOT_PATH', __DIR__ . '/..');
-    $app = new TF\\WebApplication(ROOT_PATH . '/conf/application.ini', TF::getEnv());
+    $app = new TF\\WebApplication(ROOT_PATH . '/config/application.ini', TF::getEnv());
     $app->run();
 
 

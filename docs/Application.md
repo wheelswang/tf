@@ -30,7 +30,7 @@ public TF\\Logger function [getLogger](#getlogger)(void)
 
 ## getConfig
 ### 定义
-    public TF\Config function getConfig()
+    public TF\Config function getConfig(void)
 ### 参数
 无
 ### 返回值
@@ -40,7 +40,7 @@ TF\\Config实例
 
 ## getDB
 ### 定义
-    public TF\DB function getDB()
+    public TF\DB function getDB(void)
 ### 参数
 无
 ### 返回值
@@ -50,7 +50,7 @@ TF\\DB实例
 
 ## getRedis
 ### 定义
-    public TF\Redis function getRedis()
+    public TF\Redis function getRedis(void)
 ### 参数
 无
 ### 返回值
@@ -60,7 +60,7 @@ TF\\Redis实例
 
 ## getSession
 ### 定义
-    public TF\Session function getSession()
+    public TF\Session function getSession(void)
 ### 参数
 无
 ### 返回值
@@ -70,7 +70,7 @@ TF\\Session实例
 
 ## getLogger
 ### 定义
-    public TF\\Logger function getLogger()
+    public TF\\Logger function getLogger(void)
 ### 参数
 无
 ### 返回值
