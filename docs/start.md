@@ -111,7 +111,9 @@ application\\public\\index.php
 
 ## 控制器
     <?php
-    namespace IndexController extends TF\\Controller
+    namespace application\web\controller;
+    
+    class IndexController extends \TF\Controller
     {
         public function index($arg1, $arg2, $arg3)
         {
