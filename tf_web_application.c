@@ -37,8 +37,8 @@ zend_class_entry *reflection_method_ce;
 zend_class_entry *reflection_parameter_ce;
 
 ZEND_BEGIN_ARG_INFO_EX(tf_web_application_construct_arginfo, 0, 0, 1)
-	ZEND_ARG_INFO(0, config_file)
-	ZEND_ARG_INFO(0, config_section)
+    ZEND_ARG_INFO(0, config_file)
+    ZEND_ARG_INFO(0, config_section)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(tf_web_application_set_auto_display_arginfo, 0, 0, 1)
@@ -257,11 +257,11 @@ void * tf_web_application_run_error_controller(zval *web_application, int error_
 PHP_METHOD(tf_web_application, __construct) {
     char *config_file, *config_section = NULL;
     int config_file_len, config_section_len;
-	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|s", &config_file, &config_file_len, &config_section, &config_section_len) == FAILURE) {
-		return;
-	}
-	
-	tf_application_constructor(getThis(), config_file, config_file_len, config_section, config_section_len TSRMLS_CC);
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|s", &config_file, &config_file_len, &config_section, &config_section_len) == FAILURE) {
+        return;
+    }
+    
+    tf_application_constructor(getThis(), config_file, config_file_len, config_section, config_section_len TSRMLS_CC);
 
     zval *config = zend_read_property(tf_web_application_ce, getThis(), ZEND_STRL(TF_APPLICATION_PROPERTY_NAME_CONFIG), 1 TSRMLS_CC);
     zval *modules = tf_config_get(config, "module.availables" TSRMLS_CC);
@@ -393,7 +393,7 @@ PHP_METHOD(tf_web_application, shutdownCallback) {
 }
 
 zend_function_entry tf_web_application_methods[] = {
-	PHP_ME(tf_web_application, __construct, tf_web_application_construct_arginfo, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
+    PHP_ME(tf_web_application, __construct, tf_web_application_construct_arginfo, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
     PHP_ME(tf_web_application, run, NULL, ZEND_ACC_PUBLIC)
     PHP_ME(tf_web_application, setAutoDisplay, tf_web_application_set_auto_display_arginfo, ZEND_ACC_PUBLIC)
     PHP_ME(tf_web_application, shutdownCallback, NULL, ZEND_ACC_PUBLIC)

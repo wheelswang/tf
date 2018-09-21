@@ -24,12 +24,12 @@
 #include "tf_config.h"
 
 ZEND_BEGIN_MODULE_GLOBALS(tf)
-	char 		       *environ;
-    zend_bool          use_namespace;
-	zval               *config_data_tmp;
-	char               *config_section;
-	uint               config_parsing_flag;
-    HashTable          *configs_cache;
+    char        *environ;
+    zend_bool   use_namespace;
+    zval        *config_data_tmp;
+    char        *config_section;
+    uint        config_parsing_flag;
+    HashTable   *configs_cache;
 ZEND_END_MODULE_GLOBALS(tf)
 
 #ifdef ZTS
