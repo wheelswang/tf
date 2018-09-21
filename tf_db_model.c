@@ -280,6 +280,7 @@ zval * tf_db_model_update(zval *db_model, zval *fields, zval *condition, zval *p
 					continue;
 				}
 				add_assoc_zval_ex(data, Z_STRVAL_PP(field_ppzval), Z_STRLEN_PP(field_ppzval) + 1, *value_ppzval);
+				Z_ADDREF_PP(value_ppzval);
 			}
 			if (zend_hash_num_elements(Z_ARRVAL_P(data)) == 0) {
 				zval_ptr_dtor(&data);
