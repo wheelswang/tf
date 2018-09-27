@@ -159,16 +159,21 @@ void tf_web_application_run_controller_action(zval *web_application, zval *contr
                 php_trim(Z_STRVAL_P(param), Z_STRLEN_P(param), NULL, 0, trim_param, 3 TSRMLS_CC);
                 param = trim_param;
             } else if (Z_TYPE_P(param) == IS_ARRAY) {
-                zval *trim_param_arr;
-                MAKE_STD_ZVAL(trim_param_arr);
-                array_init(trim_param_arr);
-                for (zend_hash_internal_pointer_reset(Z_ARRVAL_P(param));
-                     zend_hash_get_current_data(Z_ARRVAL_P(param), (void **)&ppzval) == SUCCESS;
-                     zend_hash_move_forward(Z_ARRVAL_P(param))) {
-                    char *param_trim_str = php_trim(Z_STRVAL_PP(ppzval), Z_STRLEN_PP(ppzval), NULL, 0, NULL, 3 TSRMLS_CC);
-                    add_next_index_string(trim_param_arr, param_trim_str, 0);
+                if (zend_hash_find(Z_ARRVAL_P(param), ZEND_STRS("size"), (void **)&ppzval) == SUCCESS && Z_TYPE_PP(ppzval) != IS_STRING) {
+                    // param is $_FILES elem
+                    Z_ADDREF_P(param);
+                } else {
+                    zval *trim_param_arr;
+                    MAKE_STD_ZVAL(trim_param_arr);
+                    array_init(trim_param_arr);
+                    for (zend_hash_internal_pointer_reset(Z_ARRVAL_P(param));
+                         zend_hash_get_current_data(Z_ARRVAL_P(param), (void **)&ppzval) == SUCCESS;
+                         zend_hash_move_forward(Z_ARRVAL_P(param))) {
+                        char *param_trim_str = php_trim(Z_STRVAL_PP(ppzval), Z_STRLEN_PP(ppzval), NULL, 0, NULL, 3 TSRMLS_CC);
+                        add_next_index_string(trim_param_arr, param_trim_str, 0);
+                    }
+                    param = trim_param_arr;
                 }
-                param = trim_param_arr;
             } else {
                 Z_ADDREF_P(param);
             }
