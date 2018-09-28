@@ -21,10 +21,11 @@
 #define TF_CONTROLLER_PROPERTY_NAME_ROUTER "_router"
 #define TF_CONTROLLER_PROPERTY_NAME_VIEW "_view"
 #define TF_CONTROLLER_PROPERTY_NAME_VIEW_EXT "_view_ext"
+#define TF_CONTROLLER_PROPERTY_NAME_ACTION "_action"
 
 void tf_controller_constructor(zval *controller, zval *request, zval *router, zval *view_ext TSRMLS_DC);
 
-zval * tf_controller_get_param(zval *controller, char *name, uint name_len TSRMLS_DC);
+void tf_controller_run_action(zval *controller, zval *action TSRMLS_CC);
 
 zval * tf_controller_render(zval *controller, char *tpl_name, zval *params TSRMLS_DC);
 

@@ -7,6 +7,11 @@
 
 版本要求：PHP 5.4+
 
+    phpize
+    ./configure
+    make
+    make install
+
 ## 扩展引入
     extension=tf.so
     #环境配置 默认product
@@ -108,11 +113,13 @@ application\\public\\index.php
     $app = new TF\\WebApplication(ROOT_PATH . '/config/application.ini', TF::getEnv());
     $app->run();
 
+## 模块初始化
+框架会执行模块根目录下的init.php文件，运行的scope为WebApplication，即$this指向应用实例
 
 ## 控制器
     <?php
     namespace application\web\controller;
-    
+
     class IndexController extends \TF\Controller
     {
         public function index($arg1, $arg2, $arg3)

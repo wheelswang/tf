@@ -34,6 +34,6 @@ zval * tf_web_application_get_default_module(zval *web_application TSRMLS_DC);
 
 zval * tf_web_application_get_module_path(zval *web_application TSRMLS_DC);
 
-zval * tf_web_application_auto_display(zval *web_application TSRMLS_DC);
+zval * tf_web_application_get_auto_display(zval *web_application TSRMLS_DC);
 
 #endif

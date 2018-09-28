@@ -32,12 +32,24 @@ ZEND_BEGIN_ARG_INFO_EX(tf_router_construct_arginfo, 0, 0, 1)
     ZEND_ARG_INFO(0, url)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(tf_router_add_rule_arginfo, 0, 0, 2)
+ZEND_BEGIN_ARG_INFO_EX(tf_router_setModule_arginfo, 0, 0, 1)
+    ZEND_ARG_INFO(0, module)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(tf_router_setController_arginfo, 0, 0, 1)
+    ZEND_ARG_INFO(0, controller)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(tf_router_setAction_arginfo, 0, 0, 1)
+    ZEND_ARG_INFO(0, action)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(tf_router_addRule_arginfo, 0, 0, 2)
     ZEND_ARG_INFO(0, search)
     ZEND_ARG_INFO(0, replace)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(tf_router_add_rules_arginfo, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(tf_router_addRules_arginfo, 0, 0, 1)
     ZEND_ARG_INFO(0, rules)
 ZEND_END_ARG_INFO()
 
@@ -287,6 +299,42 @@ PHP_METHOD(tf_router, getAction) {
     RETVAL_ZVAL(action, 1, 0);
 }
 
+PHP_METHOD(tf_router, setModule) {
+    zval *module;
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &module) != SUCCESS) {
+        return;
+    }
+    if (Z_TYPE_P(module) != IS_STRING) {
+        return;
+    }
+
+    zend_update_property(tf_router_ce, getThis(), ZEND_STRL(TF_ROUTER_PROPERTY_NAME_MODULE), module TSRMLS_CC);
+}
+
+PHP_METHOD(tf_router, setController) {
+    zval *controller;
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &controller) != SUCCESS) {
+        return;
+    }
+    if (Z_TYPE_P(controller) != IS_STRING) {
+        return;
+    }
+
+    zend_update_property(tf_router_ce, getThis(), ZEND_STRL(TF_ROUTER_PROPERTY_NAME_CONTROLLER), controller TSRMLS_CC);
+}
+
+PHP_METHOD(tf_router, setAction) {
+    zval *action;
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &action) != SUCCESS) {
+        return;
+    }
+    if (Z_TYPE_P(action) != IS_STRING) {
+        return;
+    }
+
+    zend_update_property(tf_router_ce, getThis(), ZEND_STRL(TF_ROUTER_PROPERTY_NAME_ACTION), action TSRMLS_CC);
+}
+
 /**
  * pattern => replacement
  * {"/room/(\d+)" => "/room/index/id/$1"} e.g
@@ -376,8 +424,11 @@ zend_function_entry tf_router_methods[] = {
     PHP_ME(tf_router, getModule, NULL, ZEND_ACC_PUBLIC)
     PHP_ME(tf_router, getController, NULL, ZEND_ACC_PUBLIC)
     PHP_ME(tf_router, getAction, NULL, ZEND_ACC_PUBLIC)
-    PHP_ME(tf_router, addRule, tf_router_add_rule_arginfo, ZEND_ACC_PUBLIC)
-    PHP_ME(tf_router, addRules, tf_router_add_rules_arginfo, ZEND_ACC_PUBLIC)
+    PHP_ME(tf_router, setModule, tf_router_setModule_arginfo, ZEND_ACC_PUBLIC)
+    PHP_ME(tf_router, setController, tf_router_setController_arginfo, ZEND_ACC_PUBLIC)
+    PHP_ME(tf_router, setAction, tf_router_setAction_arginfo, ZEND_ACC_PUBLIC)
+    PHP_ME(tf_router, addRule, tf_router_addRule_arginfo, ZEND_ACC_PUBLIC)
+    PHP_ME(tf_router, addRules, tf_router_addRules_arginfo, ZEND_ACC_PUBLIC)
     PHP_ME(tf_router, getRules, NULL, ZEND_ACC_PUBLIC)
     PHP_ME(tf_router, getParams, NULL, ZEND_ACC_PUBLIC)
     PHP_ME(tf_router, getParam, tf_router_get_param_arginfo, ZEND_ACC_PUBLIC)

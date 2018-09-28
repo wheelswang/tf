@@ -21,7 +21,6 @@
 #include "php.h"
 #include "Zend/zend_interfaces.h"
 #include "ext/standard/php_filestat.h"
-#include "ext/standard/php_string.h"
 #include "tf.h"
 #include "tf_application.h"
 #include "tf_web_application.h"
@@ -33,8 +32,6 @@
 #include "tf_common.h"
 
 zend_class_entry *tf_web_application_ce;
-zend_class_entry *reflection_method_ce;
-zend_class_entry *reflection_parameter_ce;
 
 ZEND_BEGIN_ARG_INFO_EX(tf_web_application_construct_arginfo, 0, 0, 1)
     ZEND_ARG_INFO(0, config_file)
@@ -80,137 +77,6 @@ zval * tf_web_application_get_module_path(zval *web_application TSRMLS_DC) {
     return zend_read_property(tf_web_application_ce, web_application, ZEND_STRL(TF_WEB_APPLICATION_PROPERTY_NAME_MODULE_PATH), 1 TSRMLS_CC);
 }
 
-void tf_web_application_run_controller_action(zval *web_application, zval *controller_name, zval *action TSRMLS_DC) {
-    zval *module = zend_read_property(tf_web_application_ce, web_application, ZEND_STRL(TF_WEB_APPLICATION_PROPERTY_NAME_MODULE), 1 TSRMLS_CC);
-    zend_class_entry *controller_ce = tf_loader_load_controller_class(tf_application_get_loader(web_application TSRMLS_CC), controller_name, module TSRMLS_CC);
-    if (!controller_ce) {
-        php_error_docref(NULL TSRMLS_CC, E_ERROR, "cannot loade controller: %s", Z_STRVAL_P(controller_name));
-    }
-    zval *config = zend_read_property(tf_web_application_ce, web_application, ZEND_STRL(TF_APPLICATION_PROPERTY_NAME_CONFIG), 1 TSRMLS_CC);
-    zval *request = zend_read_property(tf_web_application_ce, web_application, ZEND_STRL(TF_WEB_APPLICATION_PROPERTY_NAME_REQUEST), 1 TSRMLS_CC);
-    zval *router = zend_read_property(tf_web_application_ce, web_application, ZEND_STRL(TF_WEB_APPLICATION_PROPERTY_NAME_ROUTER), 1 TSRMLS_CC);
-    zval *view_ext = tf_config_get(config, "view.ext" TSRMLS_CC);
-    if (view_ext) {
-        convert_to_string(view_ext);
-    }
-    zval *controller;
-    MAKE_STD_ZVAL(controller);
-    object_init_ex(controller, controller_ce);
-    tf_controller_constructor(controller, request, router, view_ext TSRMLS_CC);
-
-    zval *ref_method, *method, *ref_method_ctr_params[2], *ret;
-    MAKE_STD_ZVAL(ref_method);
-    object_init_ex(ref_method, reflection_method_ce);
-    MAKE_STD_ZVAL(method);
-    ZVAL_STRING(method, "__construct", 1);
-    ref_method_ctr_params[0] = controller;
-    ref_method_ctr_params[1] = action;
-    MAKE_STD_ZVAL(ret);
-    call_user_function(&reflection_method_ce->function_table, &ref_method, method, ret, 2, ref_method_ctr_params TSRMLS_CC);
-    TF_ZVAL_DTOR(method);
-    TF_ZVAL_DTOR(ret);
-    if (EG(exception)) {
-        return;
-    }
-
-    zval *ret_parameters;
-    ZVAL_STRING(method, "getParameters", 1);
-    MAKE_STD_ZVAL(ret_parameters);
-    call_user_function(&reflection_method_ce->function_table, &ref_method, method, ret_parameters, 0, NULL TSRMLS_CC);
-    TF_ZVAL_DTOR(method);
-    int param_count = zend_hash_num_elements(Z_ARRVAL_P(ret_parameters));
-    zval **params = NULL;
-    if (param_count) {
-        params = emalloc(sizeof(zval *) * param_count);
-    }
-    zval **ppzval, *method_get_default_value, *ret_default_value = NULL;
-    ZVAL_STRING(method, "getName", 1);
-    MAKE_STD_ZVAL(method_get_default_value);
-    ZVAL_STRING(method_get_default_value, "getDefaultValue", 1);
-    int i = 0;
-    for (zend_hash_internal_pointer_reset(Z_ARRVAL_P(ret_parameters));
-         zend_hash_get_current_data(Z_ARRVAL_P(ret_parameters), (void **)&ppzval) == SUCCESS;
-         zend_hash_move_forward(Z_ARRVAL_P(ret_parameters))) {
-        call_user_function(&reflection_parameter_ce->function_table, ppzval, method, ret, 0, NULL TSRMLS_CC);
-        zval *param = tf_controller_get_param(controller, Z_STRVAL_P(ret), Z_STRLEN_P(ret) TSRMLS_CC);
-        if (!param) {
-            MAKE_STD_ZVAL(ret_default_value);
-            call_user_function(&reflection_parameter_ce->function_table, ppzval, method_get_default_value, ret_default_value, 0, NULL TSRMLS_CC);
-            if (EG(exception)) {
-                zend_clear_exception(TSRMLS_CC);
-                php_printf("miss param: %s", Z_STRVAL_P(ret));
-                zval_ptr_dtor(&method);
-                zval_ptr_dtor(&method_get_default_value);
-                zval_ptr_dtor(&ret_default_value);
-                zval_ptr_dtor(&ret);
-                zval_ptr_dtor(&ret_parameters);
-                zval_ptr_dtor(&ref_method);
-                zval_ptr_dtor(&controller);
-                if (param_count) {
-                    efree(params);
-                }
-                return;
-            }
-            *(params + i) = ret_default_value;
-        } else {
-            if (Z_TYPE_P(param) == IS_STRING) {
-                zval *trim_param;
-                MAKE_STD_ZVAL(trim_param);
-                php_trim(Z_STRVAL_P(param), Z_STRLEN_P(param), NULL, 0, trim_param, 3 TSRMLS_CC);
-                param = trim_param;
-            } else if (Z_TYPE_P(param) == IS_ARRAY) {
-                if (zend_hash_find(Z_ARRVAL_P(param), ZEND_STRS("size"), (void **)&ppzval) == SUCCESS && Z_TYPE_PP(ppzval) != IS_STRING) {
-                    // param is $_FILES elem
-                    Z_ADDREF_P(param);
-                } else {
-                    zval *trim_param_arr;
-                    MAKE_STD_ZVAL(trim_param_arr);
-                    array_init(trim_param_arr);
-                    for (zend_hash_internal_pointer_reset(Z_ARRVAL_P(param));
-                         zend_hash_get_current_data(Z_ARRVAL_P(param), (void **)&ppzval) == SUCCESS;
-                         zend_hash_move_forward(Z_ARRVAL_P(param))) {
-                        char *param_trim_str = php_trim(Z_STRVAL_PP(ppzval), Z_STRLEN_PP(ppzval), NULL, 0, NULL, 3 TSRMLS_CC);
-                        add_next_index_string(trim_param_arr, param_trim_str, 0);
-                    }
-                    param = trim_param_arr;
-                }
-            } else {
-                Z_ADDREF_P(param);
-            }
-            *(params + i) = param;
-        }
-        i++;
-        TF_ZVAL_DTOR(ret);
-    }
-    zval_ptr_dtor(&ret_parameters);
-    zval_ptr_dtor(&method_get_default_value);
-    TF_ZVAL_DTOR(method);
-    zval_ptr_dtor(&ref_method);
-
-    ZVAL_STRING(method, "__construct", 1);
-    call_user_function(&controller_ce->function_table, &controller, method, ret, 0, NULL TSRMLS_CC);
-    TF_ZVAL_DTOR(ret);
-
-    call_user_function(&controller_ce->function_table, &controller, action, ret, param_count, params TSRMLS_CC);
-    TF_ZVAL_DTOR(method);
-    TF_ZVAL_DTOR(ret);
-    if (param_count) {
-        for (i = 0; i < param_count; i++) {
-            zval_ptr_dtor(params + i);
-        }
-        efree(params);
-    }
-
-    zval *auto_display = zend_read_property(tf_web_application_ce, web_application, ZEND_STRL(TF_WEB_APPLICATION_PROPERTY_NAME_AUTO_DISPLAY), 1 TSRMLS_CC);
-    if (Z_BVAL_P(auto_display) && !tf_request_is_ajax(TSRMLS_DC)) {
-        ZVAL_STRING(method, "display", 1);
-        call_user_function(&controller_ce->function_table, &controller, method, ret, 0, NULL TSRMLS_CC);
-    }
-    zval_ptr_dtor(&ret);
-    zval_ptr_dtor(&method);
-    zval_ptr_dtor(&controller);
-}
-
 void * tf_web_application_run_error_controller(zval *web_application, int error_type, char *error_msg, char *error_file, int error_lineno TSRMLS_DC) {
     zval *controller_name = zend_read_property(tf_web_application_ce, web_application, ZEND_STRL(TF_WEB_APPLICATION_PROPERTY_NAME_ERROR_CONTROLLER), 1 TSRMLS_CC);
     zval *module = zend_read_property(tf_web_application_ce, web_application, ZEND_STRL(TF_WEB_APPLICATION_PROPERTY_NAME_MODULE), 1 TSRMLS_CC);
@@ -219,6 +85,7 @@ void * tf_web_application_run_error_controller(zval *web_application, int error_
         php_printf("%s", error_msg);
         return;
     }
+
     zval *controller, *method, *error_type_pzval, *error_msg_pzval, *error_file_pzval, *error_lineno_pzval, *ret;
     MAKE_STD_ZVAL(controller);
     object_init_ex(controller, controller_ce);
@@ -361,18 +228,33 @@ PHP_METHOD(tf_web_application, run) {
     efree(module_init_file);
 
     zval *router = zend_read_property(tf_web_application_ce, getThis(), ZEND_STRL(TF_WEB_APPLICATION_PROPERTY_NAME_ROUTER), 1 TSRMLS_CC);
-    zval *controller = tf_router_get_controller(router TSRMLS_CC);
+    zval *controller_name = tf_router_get_controller(router TSRMLS_CC);
+    zend_class_entry *controller_ce = tf_loader_load_controller_class(tf_application_get_loader(getThis() TSRMLS_CC), controller_name, module TSRMLS_CC);
+    if (!controller_ce) {
+        php_error_docref(NULL TSRMLS_CC, E_ERROR, "cannot loade controller: %s", Z_STRVAL_P(controller_name));
+    }
+    zval *config = zend_read_property(tf_web_application_ce, getThis(), ZEND_STRL(TF_APPLICATION_PROPERTY_NAME_CONFIG), 1 TSRMLS_CC);
+    zval *request = zend_read_property(tf_web_application_ce, getThis(), ZEND_STRL(TF_WEB_APPLICATION_PROPERTY_NAME_REQUEST), 1 TSRMLS_CC);
+    zval *view_ext = tf_config_get(config, "view.ext" TSRMLS_CC);
+    if (view_ext) {
+        convert_to_string(view_ext);
+    }
+    zval *controller;
+    MAKE_STD_ZVAL(controller);
+    object_init_ex(controller, controller_ce);
+    tf_controller_constructor(controller, request, router, view_ext TSRMLS_CC);
     zval *action = tf_router_get_action(router TSRMLS_CC);
-    tf_web_application_run_controller_action(getThis(), controller, action TSRMLS_CC);
+    tf_controller_run_action(controller, action TSRMLS_CC);
+    zval_ptr_dtor(&controller);
 }
 
 PHP_METHOD(tf_web_application, setAutoDisplay) {
-    zend_bool *auto_render;
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "b", &auto_render) == FAILURE) {
+    zend_bool *auto_display;
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "b", &auto_display) == FAILURE) {
         return;
     }
 
-    zend_update_property_bool(tf_web_application_ce, getThis(), ZEND_STRL(TF_WEB_APPLICATION_PROPERTY_NAME_AUTO_DISPLAY), (long) auto_render TSRMLS_CC);
+    zend_update_property_bool(tf_web_application_ce, getThis(), ZEND_STRL(TF_WEB_APPLICATION_PROPERTY_NAME_AUTO_DISPLAY), (long)auto_display TSRMLS_CC);
 }
 
 PHP_METHOD(tf_web_application, getRouter) {
@@ -401,6 +283,8 @@ zend_function_entry tf_web_application_methods[] = {
     PHP_ME(tf_web_application, __construct, tf_web_application_construct_arginfo, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
     PHP_ME(tf_web_application, run, NULL, ZEND_ACC_PUBLIC)
     PHP_ME(tf_web_application, setAutoDisplay, tf_web_application_set_auto_display_arginfo, ZEND_ACC_PUBLIC)
+    PHP_ME(tf_web_application, getRouter, NULL, ZEND_ACC_PUBLIC)
+    PHP_ME(tf_web_application, getRequest, NULL, ZEND_ACC_PUBLIC)
     PHP_ME(tf_web_application, shutdownCallback, NULL, ZEND_ACC_PUBLIC)
     {NULL, NULL, NULL}
 };
@@ -418,20 +302,6 @@ ZEND_MINIT_FUNCTION(tf_web_application) {
     zend_declare_property_null(tf_web_application_ce, ZEND_STRL(TF_WEB_APPLICATION_PROPERTY_NAME_REQUEST), ZEND_ACC_PRIVATE TSRMLS_CC);
     zend_declare_property_null(tf_web_application_ce, ZEND_STRL(TF_WEB_APPLICATION_PROPERTY_NAME_ROUTER), ZEND_ACC_PRIVATE TSRMLS_CC);
     zend_declare_property_string(tf_web_application_ce, ZEND_STRL(TF_WEB_APPLICATION_PROPERTY_NAME_ERROR_CONTROLLER), "ErrorController", ZEND_ACC_PRIVATE TSRMLS_CC);
-
-    zend_class_entry **reflection_method_tmp_ce;
-    if (zend_hash_find(CG(class_table), ZEND_STRS("reflectionmethod"), (void **)&reflection_method_tmp_ce) != SUCCESS) {
-        php_error_docref(NULL TSRMLS_CC, E_ERROR, "fail to find ReflectionMethod class");
-        return FAILURE;
-    }
-    reflection_method_ce = *reflection_method_tmp_ce;
-
-    zend_class_entry **reflection_parameter_tmp_ce;
-    if (zend_hash_find(CG(class_table), ZEND_STRS("reflectionparameter"), (void **)&reflection_parameter_tmp_ce) != SUCCESS) {
-        php_error_docref(NULL TSRMLS_CC, E_ERROR, "fail to find ReflectionParameter class");
-        return FAILURE;
-    }
-    reflection_parameter_ce = *reflection_parameter_tmp_ce;
 
     return SUCCESS;
 }

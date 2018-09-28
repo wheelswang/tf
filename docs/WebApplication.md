@@ -11,6 +11,10 @@ public void function [run](#run)(void)
 
 public void function [setAutoDisplay](#setautodisplay)(bool autoDisplay)
 
+public TF\\Request function [getRequest](#getrequest)(void)
+
+public TF\\Router function [getRouter](#getrouter)(void)
+
 以下方法继承自TF\\Application
 
 public TF\\Config function [getConfig](Application.md#getconfig)(void)
@@ -54,3 +58,23 @@ public TF\\Logger function [getLogger](Application.md#getlogger)(void)
 自动渲染并输出视图模板
 ### 返回值
 无
+
+-----
+
+## getRequest
+### 定义
+    public TF\Request function getRequest(void)
+### 参数
+无
+### 返回值
+TF\Request实例
+
+-----
+
+## getRouter
+### 定义
+    public TF\\Router function getRouter(void)
+### 参数
+无
+### 返回值
+TF\Router实例

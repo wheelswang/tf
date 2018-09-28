@@ -12,6 +12,12 @@ public string function [getController](#getcontroller)(void)
 
 public string function [getAction](#getaction)(void)
 
+public void function [setModule](#setmodule)(string module)
+
+public void function [setController](#setcontroller)(string controller)
+
+public void function [setAction](#setaction)(string action)
+
 public string function [getParam](#getparam)(string name)
 
 public array function [getParams](#getparams)(void)
@@ -60,6 +66,36 @@ public array function [getRules](#getrules)(void)
 无
 ### 返回值
 方法名，默认方法为index
+
+-----
+
+## setModule
+### 定义
+    public void function setModule(string module)
+### 参数
+模块名
+### 返回值
+无
+
+-----
+
+## setController
+### 定义
+    public void function setController(string controller)
+### 参数
+控制器名称
+### 返回值
+无
+
+-----
+
+## setAction
+### 定义
+    public void function setAction(string action)
+### 参数
+方法名
+### 返回值
+无
 
 -----
 

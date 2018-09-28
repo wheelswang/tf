@@ -32,6 +32,8 @@ public int [getTransactionLevel](#gettransactionlevel)(void)
 
 public void [close](#close)(void)
 
+public void [setSlaveEnabled](#setslaveenabled)(bool enabled)
+
 ## __construct
 ### 定义
     public void __construct(string server, string user, string password, string dbname, string charset = "utf8", string persistent = 0, string slaveConfigs = null)
@@ -248,5 +250,15 @@ update或者delete影响的行数
 关闭数据库连接
 ### 参数
 无
+### 返回值
+无
+
+-----
+
+## setSlaveEnabled
+### 定义
+    public void setSlaveEnabled(bool enabled)
+### 参数
+enabled
 ### 返回值
 无

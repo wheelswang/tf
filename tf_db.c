@@ -86,6 +86,10 @@ ZEND_BEGIN_ARG_INFO_EX(tf_db_execSql_arginfo, 0, 0, 2)
     ZEND_ARG_INFO(0, params)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(tf_db_setSlaveEnabled_arginfo, 0, 0, 1)
+    ZEND_ARG_INFO(0, slaveEnabled)
+ZEND_END_ARG_INFO()
+
 zval * tf_db_constructor(zval *db, zval *server, zval *user, zval *password, zval *dbname, zval *charset, zval *persistent, zval *slave_configs TSRMLS_DC) {
     if (!db) {
         MAKE_STD_ZVAL(db);
@@ -102,9 +106,6 @@ zval * tf_db_constructor(zval *db, zval *server, zval *user, zval *password, zva
     if (persistent) {
         zend_update_property(tf_db_ce, db, ZEND_STRL(TF_DB_PROPERTY_NAME_PERSISTENT), persistent TSRMLS_CC);
     }
-    //assign new property or will refer to default zval, not copy
-    zend_update_property_long(tf_db_ce, db, ZEND_STRL(TF_DB_PROPERTY_NAME_TRANSACTION_LEVEL), 0 TSRMLS_CC);
-    zend_update_property_long(tf_db_ce, db, ZEND_STRL(TF_DB_PROPERTY_NAME_SLAVE_ENABLED), 1 TSRMLS_CC);
 
     do {
         if (!slave_configs) {
@@ -1035,9 +1036,10 @@ PHP_METHOD(tf_db, begin) {
 PHP_METHOD(tf_db, commit) {
     zval *transaction_level = zend_read_property(tf_db_ce, getThis(), ZEND_STRL(TF_DB_PROPERTY_NAME_TRANSACTION_LEVEL), 1 TSRMLS_CC);
     if (Z_LVAL_P(transaction_level) > 0) {
-        Z_LVAL_P(transaction_level)--;
+        zend_update_property_long(tf_db_ce, getThis(), ZEND_STRL(TF_DB_PROPERTY_NAME_TRANSACTION_LEVEL), Z_LVAL_P(transaction_level) - 1 TSRMLS_CC);
     }
     
+    transaction_level = zend_read_property(tf_db_ce, getThis(), ZEND_STRL(TF_DB_PROPERTY_NAME_TRANSACTION_LEVEL), 1 TSRMLS_CC);
     if (Z_LVAL_P(transaction_level) > 0) {
         RETURN_TRUE;
     }
@@ -1061,9 +1063,10 @@ PHP_METHOD(tf_db, commit) {
 PHP_METHOD(tf_db, rollback) {
     zval *transaction_level = zend_read_property(tf_db_ce, getThis(), ZEND_STRL(TF_DB_PROPERTY_NAME_TRANSACTION_LEVEL), 1 TSRMLS_CC);
     if (Z_LVAL_P(transaction_level) > 0) {
-        Z_LVAL_P(transaction_level)--;
+        zend_update_property_long(tf_db_ce, getThis(), ZEND_STRL(TF_DB_PROPERTY_NAME_TRANSACTION_LEVEL), Z_LVAL_P(transaction_level) - 1 TSRMLS_CC);
     }
 
+    transaction_level = zend_read_property(tf_db_ce, getThis(), ZEND_STRL(TF_DB_PROPERTY_NAME_TRANSACTION_LEVEL), 1 TSRMLS_CC);
     if (Z_LVAL_P(transaction_level) > 0) {
         RETURN_TRUE;
     }
@@ -1093,6 +1096,16 @@ PHP_METHOD(tf_db, close) {
     zend_update_property_null(tf_db_ce, getThis(), ZEND_STRL(TF_DB_PROPERTY_NAME_PDO) TSRMLS_CC);
 }
 
+PHP_METHOD(tf_db, setSlaveEnabled) {
+    zval *slaveEnabled;
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "z", &slaveEnabled) != SUCCESS) {
+        return;
+    }
+
+    convert_to_boolean(slaveEnabled);
+    zend_update_property(tf_db_ce, getThis(), ZEND_STRL(TF_DB_PROPERTY_NAME_SLAVE_ENABLED), slaveEnabled TSRMLS_CC);
+}
+
 zend_function_entry tf_db_methods[] = {
     PHP_ME(tf_db, __construct, tf_db___construct_arginfo, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
     PHP_ME(tf_db, query, tf_db_query_arginfo, ZEND_ACC_PUBLIC)
@@ -1109,6 +1122,7 @@ zend_function_entry tf_db_methods[] = {
     PHP_ME(tf_db, rollback, NULL, ZEND_ACC_PUBLIC)
     PHP_ME(tf_db, getTransactionLevel, NULL, ZEND_ACC_PUBLIC)
     PHP_ME(tf_db, close, NULL, ZEND_ACC_PUBLIC)
+    PHP_ME(tf_db, setSlaveEnabled, tf_db_setSlaveEnabled_arginfo, ZEND_ACC_PUBLIC)
     {NULL, NULL, NULL}
 };
 
