@@ -4,17 +4,17 @@
 * [快速开始](docs/start.md)
 
 # 高级应用
- * [控制器](#docs/controller_intro.md)
- * [模型](#docs/model_intro.md)
- * [视图](#docs/view_intro.md)
- * [数据库](#doc/db_intro.md)
- * [缓存](#doc/redis_intro.md)
- * [会话](#docs/session_intro.md)
- * [路由](#docs/router_intro.md)
- * [错误处理](#docs/error.intro.md)
+ * [控制器](docs/controller_intro.md)
+ * [模型](docs/model_intro.md)
+ * [视图](docs/view_intro.md)
+ * [数据库](doc/db_intro.md)
+ * [缓存](doc/redis_intro.md)
+ * [会话](docs/session_intro.md)
+ * [路由](docs/router_intro.md)
+ * [错误处理](docs/error.intro.md)
 
 # 性能对比
-* [性能对比](#docs/qps.md)
+* [性能对比](docs/qps.md)
 
 # 类
 * [TF](docs/TF.md)
