@@ -11,7 +11,7 @@
  * [缓存](docs/redis_intro.md)
  * [会话](docs/session_intro.md)
  * [路由](docs/router_intro.md)
- * [错误处理](docs/error.intro.md)
+ * [错误处理](docs/error_intro.md)
 
 # 性能对比
 * [性能对比](docs/qps.md)
