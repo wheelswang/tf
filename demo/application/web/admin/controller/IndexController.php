@@ -1,4 +1,5 @@
 <?php
+
 namespace application\web\admin\controller;
 
 use TF;

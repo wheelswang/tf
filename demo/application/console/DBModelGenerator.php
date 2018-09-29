@@ -71,6 +71,7 @@ class DBModelGenerator
         }
 
         $code = "<?php
+
 namespace application\common\model;
 
 class $classname extends \TF\DBModel

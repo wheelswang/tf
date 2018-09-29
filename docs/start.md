@@ -45,6 +45,7 @@
 | application\\console | 命令行脚本 |
 | application\\console\\run | 命令行执行程序 |
 | application\\web | web模块目录 |
+| application\\web\\init.php | 全局初始化脚本 |
 | application\\web\\模块1\\init.php | 模块1初始化执行脚本 |
 | application\\web\\模块1\\controller | 模块1控制器目录 |
 | application\\web\\模块1\\view | 模块1视图目录 |
@@ -69,6 +70,8 @@ application\\conf\\application.ini
     #uri重定向（可选）
     router.rules.0.search="/\/room\/(\d+)/i"
     router.rules.0.replace="/room/index/id/$1"
+    #view文件后缀名（可选）
+    view.ext="php"
 
     #数据库
     db.server="127.0.0.1:3306"

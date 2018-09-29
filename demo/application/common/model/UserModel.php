@@ -1,4 +1,5 @@
 <?php
+
 namespace application\common\model;
 
 class UserModel extends \TF\DBModel
