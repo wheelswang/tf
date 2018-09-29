@@ -1,0 +1,26 @@
+#!/usr/bin/php
+<?php
+define('ROOT_PATH', __DIR__ . '/../..');
+
+$classname = @$_SERVER['argv'][1];
+$method = @$_SERVER['argv'][2];
+
+if (!$classname) {
+    exit;
+}
+
+$classname = strtoupper($classname[0]) . substr($classname, 1);
+include ROOT_PATH . '/application/console/' . $classname . '.php';
+$class = 'application\console\\' . $classname;
+
+$app = new TF\ConsoleApplication(ROOT_PATH . '/config/application.ini', 'dev');
+$app->getLogger()->setPath(ROOT_PATH . '/log/console/' . $classname);
+if (!$method || !method_exists($class, $method)) {
+    $method = 'run';
+    $args = array_splice($_SERVER['argv'], 2);
+} else {
+    $args = array_splice($_SERVER['argv'], 3);
+}
+
+
+$app->run($class . '::' . $method, $args);
