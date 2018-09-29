@@ -4,10 +4,6 @@
 控制器基类
 
 ## 方法
-public TF\\Request function [getRequest](#getrequest)(void)
-
-public TF\\Router function [getRouter](#getrouter)(void)
-
 public void function [assign](#assign)(mixed arg1, mixed arg2)
 
 public string function [render](#render)(string tplName = null, array params = array())
@@ -19,26 +15,6 @@ public void function [ajaxError](#ajaxerror)(string errMsg, int errCode = 100)
 public void function [ajaxSuccess](#ajaxsuccess)(array data = {})
 
 public void function [error](#error)(string errMsg)
-
-## getRequest
-### 定义
-    public TF\Request function getRequest(void)
-### 参数
-无
-### 返回值
-TF\Request实例
-
------
-
-## getRouter
-### 定义
-    public TF\Router function getRouter(void)
-### 参数
-无
-### 返回值
-TF\Router实例
-
------
 
 ## assign
 ### 定义

@@ -32,6 +32,12 @@
  * POST
  * FILES
 
+除FILES参数外，其余参数都经过trim函数去掉前后空白符，原始值获取方式如下：
+
+    TF::getApp()->getRouter()->getParam('name');
+    $_GET['name']
+    $_POST['name']
+
 ## 输出
 对于非ajax请求，框架会自动调用render函数输出渲染后的view, view的名称与函数名一致  
 对于ajax请求，建议调用[ajaxSuccess](#Controller.md#ajaxsuccess)或者[ajaxError](#Controller.md#ajaxerror)方法输出  

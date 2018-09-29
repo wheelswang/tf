@@ -19,8 +19,6 @@
 
 #define TF_WEB_APPLICATION_PROPERTY_NAME_AUTO_DISPLAY "_auto_display"
 #define TF_WEB_APPLICATION_PROPERTY_NAME_MODULES "_modules"
-#define TF_WEB_APPLICATION_PROPERTY_NAME_MODULE "_module"
-#define TF_WEB_APPLICATION_PROPERTY_NAME_MODULE_PATH "_module_path"
 #define TF_WEB_APPLICATION_PROPERTY_NAME_DEFAULT_MODULE "_default_module"
 #define TF_WEB_APPLICATION_PROPERTY_NAME_REQUEST "_request"
 #define TF_WEB_APPLICATION_PROPERTY_NAME_ROUTER "_router"
@@ -32,8 +30,9 @@ zval * tf_web_application_get_modules(zval *web_application TSRMLS_DC);
 
 zval * tf_web_application_get_default_module(zval *web_application TSRMLS_DC);
 
-zval * tf_web_application_get_module_path(zval *web_application TSRMLS_DC);
-
 zval * tf_web_application_get_auto_display(zval *web_application TSRMLS_DC);
 
+zval * tf_web_application_get_param(zval *web_application, char *name, int name_len TSRMLS_DC);
+
+zval * tf_web_application_get_module(zval *web_application TSRMLS_DC);
 #endif
