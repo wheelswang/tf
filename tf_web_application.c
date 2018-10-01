@@ -196,16 +196,16 @@ PHP_METHOD(tf_web_application, run) {
     efree(init_file);
     //load module init
     zval *module = tf_web_application_get_module(getThis() TSRMLS_CC);
-    char *module_init_file;
     if (Z_TYPE_P(module) != IS_NULL) {
+        char *module_init_file;
         spprintf(&module_init_file, 0, "%s/application/web/%s/init.php", Z_STRVAL_P(root_path), Z_STRVAL_P(module));
+        php_stat(module_init_file, strlen(module_init_file), FS_EXISTS, init_file_exists TSRMLS_CC);
+        if (Z_BVAL_P(init_file_exists)) {
+            tf_loader_load_file(module_init_file TSRMLS_CC);
+        }
+        zval_ptr_dtor(&init_file_exists);
+        efree(module_init_file);
     }
-    php_stat(module_init_file, strlen(module_init_file), FS_EXISTS, init_file_exists TSRMLS_CC);
-    if (Z_BVAL_P(init_file_exists)) {
-        tf_loader_load_file(module_init_file TSRMLS_CC);
-    }
-    zval_ptr_dtor(&init_file_exists);
-    efree(module_init_file);
 
     zval *router = zend_read_property(tf_web_application_ce, getThis(), ZEND_STRL(TF_WEB_APPLICATION_PROPERTY_NAME_ROUTER), 1 TSRMLS_CC);
     zval *controller_name = tf_router_get_controller(router TSRMLS_CC);
