@@ -275,47 +275,47 @@ zend_bool tf_db_connect(zval *db, int db_type, zend_bool reconnect TSRMLS_DC) {
 
 void * tf_db_build_condition_str(zval *condition, char **return_condition, zval *params TSRMLS_DC) {
     smart_str condition_str = { 0 };
-    if (condition) {
-        if (Z_TYPE_P(condition) == IS_ARRAY) {
-            zval **ppzval;
-            char *str_index;
-            uint str_index_len;
-            ulong num_index;
-            int elem_num = zend_hash_num_elements(Z_ARRVAL_P(condition));
-            int i = 0;
-            for (zend_hash_internal_pointer_reset(Z_ARRVAL_P(condition));
-                 zend_hash_has_more_elements(Z_ARRVAL_P(condition)) == SUCCESS;
-                 zend_hash_move_forward(Z_ARRVAL_P(condition))) {
-                i++;
-                char *pdo_key;
-                smart_str_appendc(&condition_str, '`');
-                switch (zend_hash_get_current_key_ex(Z_ARRVAL_P(condition), &str_index, &str_index_len, &num_index, 0, NULL)) {
-                    case HASH_KEY_IS_STRING:
-                        spprintf(&pdo_key, 0, ":%s", str_index);
-                        smart_str_appendl(&condition_str, str_index, str_index_len - 1);
-                        break;
-                    case HASH_KEY_IS_LONG:
-                        spprintf(&pdo_key, 0, ":%lu", num_index);
-                        smart_str_append_long(&condition_str, num_index);
-                        break;
-                }
-                smart_str_appendl(&condition_str, "`=", 2);
-                smart_str_appendl(&condition_str, pdo_key, strlen(pdo_key));
-                if (i < elem_num) {
-                    smart_str_appendl(&condition_str, " AND ", 5);
-                }
-
-                zend_hash_get_current_data(Z_ARRVAL_P(condition), (void **)&ppzval);
-                convert_to_string(*ppzval);
-                add_assoc_zval(params, pdo_key, *ppzval);
-                Z_ADDREF_PP(ppzval);
-
-                efree(pdo_key);
+    if (Z_TYPE_P(condition) == IS_ARRAY) {
+        zval **ppzval;
+        char *str_index;
+        uint str_index_len;
+        ulong num_index;
+        int elem_num = zend_hash_num_elements(Z_ARRVAL_P(condition));
+        int i = 0;
+        for (zend_hash_internal_pointer_reset(Z_ARRVAL_P(condition));
+             zend_hash_has_more_elements(Z_ARRVAL_P(condition)) == SUCCESS;
+             zend_hash_move_forward(Z_ARRVAL_P(condition))) {
+            i++;
+            char *pdo_key;
+            smart_str_appendc(&condition_str, '`');
+            switch (zend_hash_get_current_key_ex(Z_ARRVAL_P(condition), &str_index, &str_index_len, &num_index, 0, NULL)) {
+                case HASH_KEY_IS_STRING:
+                    spprintf(&pdo_key, 0, ":%s", str_index);
+                    smart_str_appendl(&condition_str, str_index, str_index_len - 1);
+                    break;
+                case HASH_KEY_IS_LONG:
+                    spprintf(&pdo_key, 0, ":%lu", num_index);
+                    smart_str_append_long(&condition_str, num_index);
+                    break;
             }
-        } else {
-            convert_to_string(condition);
-            smart_str_appendl(&condition_str, Z_STRVAL_P(condition), Z_STRLEN_P(condition));
+            smart_str_appendl(&condition_str, "`=", 2);
+            smart_str_appendl(&condition_str, pdo_key, strlen(pdo_key));
+            if (i < elem_num) {
+                smart_str_appendl(&condition_str, " AND ", 5);
+            }
+
+            zend_hash_get_current_data(Z_ARRVAL_P(condition), (void **)&ppzval);
+            // 数组参数传递是浅拷贝，必须分离变量后进行更改操作
+            SEPARATE_ZVAL(ppzval);
+            convert_to_string(*ppzval);
+            add_assoc_zval(params, pdo_key, *ppzval);
+            Z_ADDREF_PP(ppzval);
+
+            efree(pdo_key);
         }
+    } else {
+        convert_to_string(condition);
+        smart_str_appendl(&condition_str, Z_STRVAL_P(condition), Z_STRLEN_P(condition));
     }
 
     smart_str_0(&condition_str);
@@ -359,7 +359,10 @@ zval * tf_db_build_query_sql_data(char *table, zval *condition, zval *params, zv
     zval *new_params;
     MAKE_STD_ZVAL(new_params);
     array_init(new_params);
-    tf_db_build_condition_str(condition, &condition_str, new_params TSRMLS_CC);
+    if (condition) {
+        tf_db_build_condition_str(condition, &condition_str, new_params TSRMLS_CC);
+    }
+    
     if (params && Z_TYPE_P(params) == IS_ARRAY) {
         zend_hash_copy(Z_ARRVAL_P(new_params), Z_ARRVAL_P(params), (copy_ctor_func_t) zval_add_ref, NULL, sizeof(zval *));
     }
@@ -432,7 +435,9 @@ zval * tf_db_build_update_sql_data(char *table, zval *data, zval *condition, zva
     smart_str_0(&data_str);
 
     char *condition_str = NULL;
-    tf_db_build_condition_str(condition, &condition_str, new_params TSRMLS_CC);
+    if (condition) {
+        tf_db_build_condition_str(condition, &condition_str, new_params TSRMLS_CC);
+    }
     
     char *sql;
     if (condition_str) {
@@ -529,7 +534,9 @@ zval * tf_db_build_delete_sql_data(char *table, zval *condition, zval *params TS
     zval *new_params;
     MAKE_STD_ZVAL(new_params);
     array_init(new_params);
-    tf_db_build_condition_str(condition, &condition_str, new_params TSRMLS_CC);
+    if (condition) {
+        tf_db_build_condition_str(condition, &condition_str, new_params TSRMLS_CC);
+    }
 
     char *sql;
     if (condition_str) {

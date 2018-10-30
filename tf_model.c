@@ -109,8 +109,9 @@ zval * tf_model_constructor(zval *model TSRMLS_DC) {
             if (has_default) {
                 if (Z_TYPE_P(default_value) == IS_LONG && Z_LVAL_P(default_value) == TF_MODEL_DEFAULT_VALUE_CURRENT_TIMESTAMP) {
                     MAKE_STD_ZVAL(default_value);
-                    char *currentDateTime = php_format_date(ZEND_STRL("Y-m-d H:i:s"), time(NULL), 1);
-                    ZVAL_STRING(default_value, currentDateTime, 0);
+                    char *current_datetime = php_format_date(ZEND_STRL("Y-m-d H:i:s"), time(NULL), 1);
+                    ZVAL_STRING(default_value, current_datetime, 0);
+                    Z_DELREF_P(default_value);
                 } else {
                     convert_to_string(default_value);
                 }

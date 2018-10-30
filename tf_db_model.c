@@ -184,8 +184,6 @@ zval * tf_db_model_consturctor(zval *row TSRMLS_DC) {
                 field_len--;
                 break;
             case HASH_KEY_IS_LONG:
-                spprintf(&field, 0, "%lu", num_index);
-                field_len = strlen(field);
                 break;
         }
 
@@ -195,6 +193,35 @@ zval * tf_db_model_consturctor(zval *row TSRMLS_DC) {
         }
 
         zend_hash_get_current_data(Z_ARRVAL_P(row), (void **)&ppzval);
+
+        zval *table_fields = zend_read_static_property(EG(called_scope), ZEND_STRL(TF_MODEL_PROPERTY_NAME_FIELDS), 1 TSRMLS_CC);
+        zval **field_define;
+        if (zend_hash_find(Z_ARRVAL_P(table_fields), field, field_len + 1, (void **)&field_define) != SUCCESS) {
+            continue;
+        }
+
+        zval *field_type;
+        if (Z_TYPE_PP(field_define) == IS_ARRAY) {
+            if (zend_hash_index_find(Z_ARRVAL_PP(field_define), 0, (void **)&field_type) != SUCCESS) {
+                continue;
+            }
+        } else if (Z_TYPE_PP(field_define) == IS_LONG) {
+            field_type = *field_define;
+        } else {
+            continue;
+        }
+        if (Z_LVAL_P(field_type) == TF_MODEL_VAR_TYPE_INT) {
+            convert_to_long(*ppzval);
+        } else if (Z_LVAL_P(field_type) == TF_MODEL_VAR_TYPE_DOUBLE) {
+            convert_to_double(*ppzval);
+        } else if (Z_LVAL_P(field_type) == TF_MODEL_VAR_TYPE_BOOL) {
+            convert_to_boolean(*ppzval);
+        }
+
+        if (hash_key_type == HASH_KEY_IS_LONG) {
+            spprintf(&field, 0, "%lu", num_index);
+            field_len = strlen(field);
+        }
         add_assoc_zval(data, field, *ppzval);
         Z_ADDREF_PP(ppzval);
         if (hash_key_type == HASH_KEY_IS_LONG) {
