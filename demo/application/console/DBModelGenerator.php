@@ -51,7 +51,12 @@ class DBModelGenerator
             } else {
                 $type = 'self::STRING';
                 if ($row['Default']) {
-                    $row['Default'] = '\'' . (string) $row['Default'] . '\'';
+                    if ($row['Type'] == 'datetime' && $row['Default'] == 'CURRENT_TIMESTAMP') {
+                        $row['Default'] = 'self::CURRENT_TIMESTAMP';
+                    } else {
+                        $row['Default'] = '\'' . (string) $row['Default'] . '\'';
+                    }
+
                 }
             }
 
