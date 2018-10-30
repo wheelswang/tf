@@ -20,6 +20,7 @@
 
 #include "php.h"
 #include "ext/standard/php_smart_str.h"
+#include "ext/date/php_date.h"
 #include "tf_model.h"
 
 zend_class_entry *tf_model_ce;
@@ -106,7 +107,13 @@ zval * tf_model_constructor(zval *model TSRMLS_DC) {
             }
         } else if (Z_LVAL_P(type) == TF_MODEL_VAR_TYPE_STRING) {
             if (has_default) {
-                convert_to_string(default_value);
+                if (Z_TYPE_P(default_value) == IS_LONG && Z_LVAL_P(default_value) == TF_MODEL_DEFAULT_VALUE_CURRENT_TIMESTAMP) {
+                    MAKE_STD_ZVAL(default_value);
+                    char *currentDateTime = php_format_date(ZEND_STRL("Y-m-d H:i:s"), time(NULL), 1);
+                    ZVAL_STRING(default_value, currentDateTime, 0);
+                } else {
+                    convert_to_string(default_value);
+                }
             } else {
                 MAKE_STD_ZVAL(default_value);
                 ZVAL_STRING(default_value, "", 1);
@@ -302,6 +309,7 @@ ZEND_MINIT_FUNCTION(tf_model) {
     zend_declare_class_constant_long(tf_model_ce, ZEND_STRL(TF_MODEL_PROPERTY_NAME_VAR_TYPE_DOUBLE), TF_MODEL_VAR_TYPE_DOUBLE TSRMLS_CC);
     zend_declare_class_constant_long(tf_model_ce, ZEND_STRL(TF_MODEL_PROPERTY_NAME_VAR_TYPE_STRING), TF_MODEL_VAR_TYPE_STRING TSRMLS_CC);
     zend_declare_class_constant_long(tf_model_ce, ZEND_STRL(TF_MODEL_PROPERTY_NAME_VAR_TYPE_BOOL), TF_MODEL_VAR_TYPE_BOOL TSRMLS_CC);
+    zend_declare_class_constant_long(tf_model_ce, ZEND_STRL(TF_MODEL_PROPERTY_NAME_DEFAULT_VALUE_CURRENT_TIMESTAMP), TF_MODEL_DEFAULT_VALUE_CURRENT_TIMESTAMP TSRMLS_CC);
 
     return SUCCESS;
 }
