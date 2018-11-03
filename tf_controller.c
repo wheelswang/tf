@@ -158,7 +158,6 @@ void tf_controller_run_action(zval *controller, zval *action TSRMLS_CC) {
                 zval_ptr_dtor(&ret);
                 zval_ptr_dtor(&ret_parameters);
                 zval_ptr_dtor(&ref_method);
-                zval_ptr_dtor(&controller);
                 if (param_count) {
                     efree(params);
                 }
