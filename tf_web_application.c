@@ -228,12 +228,12 @@ PHP_METHOD(tf_web_application, run) {
 }
 
 PHP_METHOD(tf_web_application, setAutoDisplay) {
-    zend_bool *auto_display;
+    zend_bool auto_display;
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "b", &auto_display) == FAILURE) {
         return;
     }
 
-    zend_update_property_bool(tf_web_application_ce, getThis(), ZEND_STRL(TF_WEB_APPLICATION_PROPERTY_NAME_AUTO_DISPLAY), (long)auto_display TSRMLS_CC);
+    zend_update_property_bool(tf_web_application_ce, getThis(), ZEND_STRL(TF_WEB_APPLICATION_PROPERTY_NAME_AUTO_DISPLAY), auto_display TSRMLS_CC);
 }
 
 PHP_METHOD(tf_web_application, getRouter) {
