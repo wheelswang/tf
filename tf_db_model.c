@@ -235,9 +235,13 @@ zval * tf_db_model_consturctor(zval *row TSRMLS_DC) {
 zval * tf_db_model_update(zval *db_model, zval *fields, zval *condition, zval *params TSRMLS_DC) {
     zval *data, *table;
     if (!db_model) {
-        // ZEND_ACC_ALLOW_STATIC 定义后 拿不到
-        zend_class_entry *ce = (zend_class_entry *)EG(active_op_array)->run_time_cache[0];
+        // ZEND_ACC_ALLOW_STATIC EG(called_scope) is null
+        zend_class_entry *ce = (zend_class_entry *)EG(active_op_array)->run_time_cache[EG(active_op_array)->last_cache_slot - 2];
         zval *table_fields = zend_read_static_property(ce, ZEND_STRL(TF_MODEL_PROPERTY_NAME_FIELDS), 1 TSRMLS_CC);
+        if (Z_TYPE_P(table_fields) != IS_ARRAY) {
+            tf_set_error_simple_msg(ZEND_STRL("table fields must be array") TSRMLS_CC);
+            return NULL;
+        }
         //condition is required for safe
         if (!fields || Z_TYPE_P(fields) != IS_ARRAY || !zend_hash_num_elements(Z_ARRVAL_P(fields))) {
             tf_set_error_simple_msg(ZEND_STRL("update must be called by instance if fields is NULL") TSRMLS_CC);
@@ -268,15 +272,16 @@ zval * tf_db_model_update(zval *db_model, zval *fields, zval *condition, zval *p
             char *str_index;
             uint str_index_len;
             ulong num_index;
-            if (zend_hash_get_current_key_ex(Z_ARRVAL_P(fields), &str_index, &str_index_len, &num_index, 0, NULL) != HASH_KEY_IS_STRING) {
-                continue;
+            char *key_index;
+            int key_type = zend_hash_get_current_key_ex(Z_ARRVAL_P(fields), &str_index, &str_index_len, &num_index, 0, NULL);
+            if (key_type == HASH_KEY_IS_STRING) {
+                key_index = str_index;
+            } else {
+                spprintf(&key_index, 0, "%d", num_index);
+                str_index_len = strlen(key_index);
             }
 
-            if (Z_TYPE_P(table_fields) != IS_ARRAY) {
-                break;
-            }
-
-            if (!zend_hash_exists(Z_ARRVAL_P(table_fields), str_index, str_index_len)) {
+            if (!zend_hash_exists(Z_ARRVAL_P(table_fields), key_index, str_index_len)) {
                 continue;
             }
             
@@ -284,20 +289,20 @@ zval * tf_db_model_update(zval *db_model, zval *fields, zval *condition, zval *p
             zend_hash_get_current_data(Z_ARRVAL_P(fields), (void **)&ppzval);
             add_assoc_zval(data, str_index, *ppzval);
             Z_ADDREF_PP(ppzval);
+            if (key_type != HASH_KEY_IS_STRING) {
+                efree(key_index);
+            }
         }
 
-        // fields are all num index or invalid
         if (!zend_hash_num_elements(Z_ARRVAL_P(data))) {
-            tf_set_error_simple_msg(ZEND_STRL("update must be called by instance if fields are all num indexes") TSRMLS_CC);
+            tf_set_error_simple_msg(ZEND_STRL("update must be called by instance if fields are empty") TSRMLS_CC);
             return NULL;
         }
 
         table = zend_read_static_property(ce, ZEND_STRL(TF_DB_MODEL_PROPERTY_NAME_TABLE), 1 TSRMLS_CC);
         convert_to_string(table);
     } else {
-        zval *table_fields = zend_read_static_property(EG(called_scope), ZEND_STRL(TF_MODEL_PROPERTY_NAME_FIELDS), 1 TSRMLS_CC);
         zval *pk = tf_db_model_get_pk(TSRMLS_CC);
-
         zval *model_data = tf_db_model_get_data(db_model TSRMLS_CC);
         if (fields && Z_TYPE_P(fields) == IS_ARRAY && zend_hash_num_elements(Z_ARRVAL_P(fields)) > 0) {
             MAKE_STD_ZVAL(data);
@@ -371,8 +376,8 @@ zval * tf_db_model_delete(zval *db_model, zval *condition, zval *params TSRMLS_D
             }
         }
 
-        // ZEND_ACC_ALLOW_STATIC 定义后 拿不到
-        zend_class_entry *ce = (zend_class_entry *)EG(active_op_array)->run_time_cache[0];
+        // ZEND_ACC_ALLOW_STATIC EG(called_scope) is null
+        zend_class_entry *ce = (zend_class_entry *)EG(active_op_array)->run_time_cache[EG(active_op_array)->last_cache_slot - 2];
         table = zend_read_static_property(ce, ZEND_STRL(TF_DB_MODEL_PROPERTY_NAME_TABLE), 1 TSRMLS_CC);
         convert_to_string(table);
     } else {
