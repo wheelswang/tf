@@ -295,12 +295,13 @@ void tf_controller_ajax_out(int error_code, char *error_msg, int error_msg_len, 
     }
 
     smart_str buf = {0};
-    php_json_encode(&buf, arr, PHP_JSON_UNESCAPED_UNICODE);
+    php_json_encode(&buf, arr, PHP_JSON_UNESCAPED_UNICODE TSRMLS_CC);
     smart_str_0(&buf);
 
     sapi_header_line ctr = {ZEND_STRL("Content-Type: application/json; charset=utf-8"), 200};
     sapi_header_op(SAPI_HEADER_REPLACE, &ctr TSRMLS_CC);
-    php_printf(buf.c);
+    
+    php_write(buf.c, buf.len);
 
     efree(buf.c);
     zval_ptr_dtor(&arr);
