@@ -51,6 +51,8 @@ inline zval * tf_set_application(zval *application TSRMLS_DC);
 
 inline zval * tf_get_application(TSRMLS_DC);
 
+inline zval * tf_get_error(TSRMLS_DC);
+
 void tf_set_error(int error_code, char *error_msg, int error_msg_len, char *error_detail, int error_detail_len TSRMLS_DC);
 
 inline void tf_set_error_msg(char *error_msg, int error_msg_len, char *error_detail, int error_detail_len TSRMLS_DC);

@@ -31,6 +31,7 @@
 #include "tf_loader.h"
 #include "tf_view.h"
 #include "tf_common.h"
+#include "tf_error.h"
 
 zend_class_entry *tf_controller_ce;
 zend_class_entry *reflection_method_ce;
@@ -356,11 +357,17 @@ PHP_METHOD(tf_controller, display) {
 }
 
 PHP_METHOD(tf_controller, ajaxError) {
-    char *error_msg;
+    char *error_msg = NULL;
     int error_msg_len;
     long error_code = 100;
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s|l", &error_msg, &error_msg_len, &error_code) != SUCCESS) {
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|sl", &error_msg, &error_msg_len, &error_code) != SUCCESS) {
         return;
+    }
+
+    if (error_msg == NULL) {
+        zval *error_msg_zval = tf_error_get_error_msg(tf_get_error(TSRMLS_CC) TSRMLS_CC);
+        error_msg = Z_STRVAL_P(error_msg_zval);
+        error_msg_len = Z_STRLEN_P(error_msg_zval);
     }
 
     tf_controller_ajax_out(error_code, error_msg, error_msg_len, NULL);
@@ -381,13 +388,17 @@ PHP_METHOD(tf_controller, ajaxSuccess) {
 }
 
 PHP_METHOD(tf_controller, error) {
-    char *error;
-    int error_len;
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_DC, "|s", &error, &error_len) != SUCCESS) {
+    char *error_msg = NULL;
+    int error_msg_len;
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_DC, "|s", &error_msg, &error_msg_len) != SUCCESS) {
         return;
     }
 
-    tf_web_application_run_error_controller(tf_get_application(TSRMLS_CC), E_USER_ERROR, error, NULL, 0 TSRMLS_CC);
+    if (error_msg == NULL) {
+        error_msg = Z_STRVAL_P(tf_error_get_error_msg(tf_get_error(TSRMLS_CC) TSRMLS_CC));
+    }
+
+    tf_web_application_run_error_controller(tf_get_application(TSRMLS_CC), E_USER_ERROR, error_msg, NULL, 0 TSRMLS_CC);
 
     zend_bailout();
 }
