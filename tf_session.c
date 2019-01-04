@@ -41,7 +41,7 @@ ZEND_BEGIN_ARG_INFO_EX(tf_session_set_arginfo, 0, 0, 1)
     ZEND_ARG_INFO(0, value)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(tf_session_del_arginfo, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(tf_session_delete_arginfo, 0, 0, 1)
     ZEND_ARG_INFO(0, name)
 ZEND_END_ARG_INFO()
 
@@ -211,7 +211,7 @@ PHP_METHOD(tf_session, set) {
     php_set_session_var(name, name_len, value, NULL TSRMLS_CC);
 }
 
-PHP_METHOD(tf_session, del) {
+PHP_METHOD(tf_session, delete) {
     char *name;
     int name_len;
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "s", &name, &name_len) != SUCCESS) {
@@ -250,7 +250,7 @@ zend_function_entry tf_session_methods[] = {
     PHP_ME(tf_session, start, NULL, ZEND_ACC_PUBLIC)
     PHP_ME(tf_session, get, tf_session_get_arginfo, ZEND_ACC_PUBLIC)
     PHP_ME(tf_session, set, tf_session_set_arginfo, ZEND_ACC_PUBLIC)
-    PHP_ME(tf_session, del, tf_session_del_arginfo, ZEND_ACC_PUBLIC)
+    PHP_ME(tf_session, delete, tf_session_delete_arginfo, ZEND_ACC_PUBLIC)
     PHP_ME(tf_session, getSessionId, NULL, ZEND_ACC_PUBLIC)
     PHP_ME(tf_session, setSessionId, tf_session_setSessionId_arginfo, ZEND_ACC_PUBLIC)
     PHP_ME(tf_session, destroy, NULL, ZEND_ACC_PUBLIC)
