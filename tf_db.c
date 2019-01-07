@@ -315,7 +315,9 @@ void * tf_db_build_condition_str(zval *condition, char **return_condition, zval 
         }
     } else {
         convert_to_string(condition);
-        smart_str_appendl(&condition_str, Z_STRVAL_P(condition), Z_STRLEN_P(condition));
+        if (Z_STRLEN_P(condition) > 0) {
+            smart_str_appendl(&condition_str, Z_STRVAL_P(condition), Z_STRLEN_P(condition));
+        }
     }
 
     smart_str_0(&condition_str);
