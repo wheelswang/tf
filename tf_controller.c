@@ -43,12 +43,12 @@ ZEND_BEGIN_ARG_INFO_EX(tf_controller_assign_arginfo, 0, 0, 1)
     ZEND_ARG_INFO(0, value)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(tf_controller_render_arginfo, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(tf_controller_render_arginfo, 0, 0, 0)
     ZEND_ARG_INFO(0, tpl_name)
     ZEND_ARG_INFO(0, params)
 ZEND_END_ARG_INFO()
 
-ZEND_BEGIN_ARG_INFO_EX(tf_controller_display_arginfo, 0, 0, 1)
+ZEND_BEGIN_ARG_INFO_EX(tf_controller_display_arginfo, 0, 0, 0)
     ZEND_ARG_INFO(0, tpl_name)
     ZEND_ARG_INFO(0, params)
 ZEND_END_ARG_INFO()
@@ -403,6 +403,11 @@ PHP_METHOD(tf_controller, error) {
     zend_bailout();
 }
 
+PHP_METHOD(tf_controller, getView) {
+    zval *view = tf_controller_init_view(getThis() TSRMLS_CC);
+    RETURN_ZVAL(view, 1, 0);
+}
+
 zend_function_entry tf_controller_methods[] = {
     PHP_ME(tf_controller, assign, tf_controller_assign_arginfo, ZEND_ACC_PUBLIC)
     PHP_ME(tf_controller, render, tf_controller_render_arginfo, ZEND_ACC_PUBLIC)
@@ -410,6 +415,7 @@ zend_function_entry tf_controller_methods[] = {
     PHP_ME(tf_controller, ajaxError, tf_controller_ajaxError_arginfo, ZEND_ACC_PUBLIC)
     PHP_ME(tf_controller, ajaxSuccess, tf_controller_ajaxSuccess_arginfo, ZEND_ACC_PUBLIC)
     PHP_ME(tf_controller, error, tf_controller_error_arginfo, ZEND_ACC_PROTECTED)
+    PHP_ME(tf_controller, getView, NULL, ZEND_ACC_PROTECTED)
     {NULL, NULL, NULL}
 };
 
