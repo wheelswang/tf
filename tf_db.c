@@ -100,6 +100,8 @@ zval * tf_db_constructor(zval *db, zval *server, zval *user, zval *password, zva
     zend_update_property(tf_db_ce, db, ZEND_STRL(TF_DB_PROPERTY_NAME_USER), user TSRMLS_CC);
     zend_update_property(tf_db_ce, db, ZEND_STRL(TF_DB_PROPERTY_NAME_PASSWORD), password TSRMLS_CC);
     zend_update_property(tf_db_ce, db, ZEND_STRL(TF_DB_PROPERTY_NAME_DBNAME), dbname TSRMLS_CC);
+    // 这里赋值避免后面直接操作原始属性
+    zend_update_property_long(tf_db_ce, db, ZEND_STRL(TF_DB_PROPERTY_NAME_TRANSACTION_LEVEL), 0 TSRMLS_CC);
     if (charset) {
         zend_update_property(tf_db_ce, db, ZEND_STRL(TF_DB_PROPERTY_NAME_CHARSET), charset TSRMLS_CC);
     }
@@ -1045,10 +1047,9 @@ PHP_METHOD(tf_db, begin) {
 PHP_METHOD(tf_db, commit) {
     zval *transaction_level = zend_read_property(tf_db_ce, getThis(), ZEND_STRL(TF_DB_PROPERTY_NAME_TRANSACTION_LEVEL), 1 TSRMLS_CC);
     if (Z_LVAL_P(transaction_level) > 0) {
-        zend_update_property_long(tf_db_ce, getThis(), ZEND_STRL(TF_DB_PROPERTY_NAME_TRANSACTION_LEVEL), Z_LVAL_P(transaction_level) - 1 TSRMLS_CC);
+        Z_LVAL_P(transaction_level)--;
     }
     
-    transaction_level = zend_read_property(tf_db_ce, getThis(), ZEND_STRL(TF_DB_PROPERTY_NAME_TRANSACTION_LEVEL), 1 TSRMLS_CC);
     if (Z_LVAL_P(transaction_level) > 0) {
         RETURN_TRUE;
     }
@@ -1072,10 +1073,9 @@ PHP_METHOD(tf_db, commit) {
 PHP_METHOD(tf_db, rollback) {
     zval *transaction_level = zend_read_property(tf_db_ce, getThis(), ZEND_STRL(TF_DB_PROPERTY_NAME_TRANSACTION_LEVEL), 1 TSRMLS_CC);
     if (Z_LVAL_P(transaction_level) > 0) {
-        zend_update_property_long(tf_db_ce, getThis(), ZEND_STRL(TF_DB_PROPERTY_NAME_TRANSACTION_LEVEL), Z_LVAL_P(transaction_level) - 1 TSRMLS_CC);
+        Z_LVAL_P(transaction_level)--;
     }
 
-    transaction_level = zend_read_property(tf_db_ce, getThis(), ZEND_STRL(TF_DB_PROPERTY_NAME_TRANSACTION_LEVEL), 1 TSRMLS_CC);
     if (Z_LVAL_P(transaction_level) > 0) {
         RETURN_TRUE;
     }
