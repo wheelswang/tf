@@ -232,184 +232,6 @@ zval * tf_db_model_consturctor(zval *row TSRMLS_DC) {
     return db_model;
 }
 
-zval * tf_db_model_update(zval *db_model, zval *fields, zval *condition, zval *params TSRMLS_DC) {
-    zval *data, *table;
-    if (!db_model) {
-        // ZEND_ACC_ALLOW_STATIC EG(called_scope) is null
-        zend_class_entry *ce = (zend_class_entry *)EG(active_op_array)->run_time_cache[EG(active_op_array)->last_cache_slot - 2];
-        zval *table_fields = zend_read_static_property(ce, ZEND_STRL(TF_MODEL_PROPERTY_NAME_FIELDS), 1 TSRMLS_CC);
-        if (Z_TYPE_P(table_fields) != IS_ARRAY) {
-            tf_set_error_simple_msg(ZEND_STRL("table fields must be array") TSRMLS_CC);
-            return NULL;
-        }
-        //condition is required for safe
-        if (!fields || Z_TYPE_P(fields) != IS_ARRAY || !zend_hash_num_elements(Z_ARRVAL_P(fields))) {
-            tf_set_error_simple_msg(ZEND_STRL("update must be called by instance if fields is NULL") TSRMLS_CC);
-            return NULL;
-        }
-
-        if (!condition) {
-            tf_set_error_simple_msg(ZEND_STRL("update must be called by instance if condition is NULL") TSRMLS_CC);
-            return NULL;
-        } else if (Z_TYPE_P(condition) == IS_ARRAY) {
-            if (!zend_hash_num_elements(Z_ARRVAL_P(condition))) {
-                tf_set_error_simple_msg(ZEND_STRL("update must be called by instance if condition is empty") TSRMLS_CC);
-                return NULL;
-            }
-        } else {
-            convert_to_string(condition);
-            if (!Z_STRLEN_P(condition)) {
-                tf_set_error_simple_msg(ZEND_STRL("update must be called by instance if condition is empty") TSRMLS_CC);
-                return NULL;
-            }
-        }
-
-        MAKE_STD_ZVAL(data);
-        array_init(data);
-        for (zend_hash_internal_pointer_reset(Z_ARRVAL_P(fields));
-             zend_hash_has_more_elements(Z_ARRVAL_P(fields)) == SUCCESS;
-             zend_hash_move_forward(Z_ARRVAL_P(fields))) {
-            char *str_index;
-            uint str_index_len;
-            ulong num_index;
-            char *key_index;
-            int key_type = zend_hash_get_current_key_ex(Z_ARRVAL_P(fields), &str_index, &str_index_len, &num_index, 0, NULL);
-            if (key_type == HASH_KEY_IS_STRING) {
-                key_index = str_index;
-            } else {
-                spprintf(&key_index, 0, "%d", num_index);
-                str_index_len = strlen(key_index);
-            }
-
-            if (!zend_hash_exists(Z_ARRVAL_P(table_fields), key_index, str_index_len)) {
-                continue;
-            }
-            
-            zval **ppzval;
-            zend_hash_get_current_data(Z_ARRVAL_P(fields), (void **)&ppzval);
-            add_assoc_zval(data, str_index, *ppzval);
-            Z_ADDREF_PP(ppzval);
-            if (key_type != HASH_KEY_IS_STRING) {
-                efree(key_index);
-            }
-        }
-
-        if (!zend_hash_num_elements(Z_ARRVAL_P(data))) {
-            tf_set_error_simple_msg(ZEND_STRL("update must be called by instance if fields are empty") TSRMLS_CC);
-            return NULL;
-        }
-
-        table = zend_read_static_property(ce, ZEND_STRL(TF_DB_MODEL_PROPERTY_NAME_TABLE), 1 TSRMLS_CC);
-        convert_to_string(table);
-    } else {
-        zval *pk = tf_db_model_get_pk(TSRMLS_CC);
-        zval *model_data = tf_db_model_get_data(db_model TSRMLS_CC);
-        if (fields && Z_TYPE_P(fields) == IS_ARRAY && zend_hash_num_elements(Z_ARRVAL_P(fields)) > 0) {
-            MAKE_STD_ZVAL(data);
-            array_init(data);
-            zval **field_ppzval, **value_ppzval;
-            for (zend_hash_internal_pointer_reset(Z_ARRVAL_P(fields));
-                 zend_hash_get_current_data(Z_ARRVAL_P(fields), (void **)&field_ppzval) == SUCCESS;
-                 zend_hash_move_forward(Z_ARRVAL_P(fields))) {
-                if (Z_TYPE_PP(field_ppzval) != IS_STRING) {
-                    continue;
-                }
-                if (zend_hash_find(Z_ARRVAL_P(model_data), Z_STRVAL_PP(field_ppzval), Z_STRLEN_PP(field_ppzval) + 1, (void **)&value_ppzval) != SUCCESS) {
-                    continue;
-                }
-                add_assoc_zval_ex(data, Z_STRVAL_PP(field_ppzval), Z_STRLEN_PP(field_ppzval) + 1, *value_ppzval);
-                Z_ADDREF_PP(value_ppzval);
-            }
-            if (zend_hash_num_elements(Z_ARRVAL_P(data)) == 0) {
-                zval_ptr_dtor(&data);
-                data = model_data;
-                Z_ADDREF_P(model_data);
-            }
-        } else {
-            data = model_data;
-            Z_ADDREF_P(model_data);
-        }
-
-        zval **ppzval;
-        if (zend_hash_find(Z_ARRVAL_P(model_data), Z_STRVAL_P(pk), Z_STRLEN_P(pk) + 1, (void **)&ppzval) != SUCCESS) {
-            zval_ptr_dtor(&data);
-            tf_set_error_simple_msg(ZEND_STRL("pk value is missing") TSRMLS_CC);
-            return NULL;
-        }
-
-        MAKE_STD_ZVAL(condition);
-        array_init(condition);
-        add_assoc_zval(condition, Z_STRVAL_P(pk), *ppzval);
-        Z_ADDREF_PP(ppzval);
-
-        table = tf_db_model_get_table(TSRMLS_CC);
-    }
-
-    tf_db_model_init(TSRMLS_CC);
-    zval *db = zend_read_static_property(tf_db_model_ce, ZEND_STRL(TF_DB_MODEL_PROPERTY_NAME_DB), 1 TSRMLS_CC);
-    zval *ret = tf_db_update(db, Z_STRVAL_P(table), data, condition, params TSRMLS_DC);
-
-    zval_ptr_dtor(&data);
-    if (db_model) {
-        zval_ptr_dtor(&condition);
-    }
-
-    return ret;
-}
-
-zval * tf_db_model_delete(zval *db_model, zval *condition, zval *params TSRMLS_DC) {
-    zval *table;
-    if (!db_model) {
-        if (!condition) {
-            tf_set_error_simple_msg(ZEND_STRL("delete must be called by instance if condition is NULL") TSRMLS_CC);
-            return NULL;
-        } else if (Z_TYPE_P(condition) == IS_ARRAY) {
-            if (!zend_hash_num_elements(Z_ARRVAL_P(condition))) {
-                tf_set_error_simple_msg(ZEND_STRL("delete must be called by instance if condition is empty") TSRMLS_CC);
-                return NULL;
-            }
-        } else {
-            convert_to_string(condition);
-            if (!Z_STRLEN_P(condition)) {
-                tf_set_error_simple_msg(ZEND_STRL("delete must be called by instance if condition is empty") TSRMLS_CC);
-                return NULL;
-            }
-        }
-
-        // ZEND_ACC_ALLOW_STATIC EG(called_scope) is null
-        zend_class_entry *ce = (zend_class_entry *)EG(active_op_array)->run_time_cache[EG(active_op_array)->last_cache_slot - 2];
-        table = zend_read_static_property(ce, ZEND_STRL(TF_DB_MODEL_PROPERTY_NAME_TABLE), 1 TSRMLS_CC);
-        convert_to_string(table);
-    } else {
-        MAKE_STD_ZVAL(condition);
-        array_init(condition);
-
-        zval *pk = tf_db_model_get_pk(TSRMLS_CC);
-
-        zval *model_data = tf_db_model_get_data(db_model TSRMLS_CC);
-        zval **ppzval;
-        if (zend_hash_find(Z_ARRVAL_P(model_data), Z_STRVAL_P(pk), Z_STRLEN_P(pk) + 1, (void **)&ppzval) != SUCCESS) {
-            tf_set_error_simple_msg(ZEND_STRL("pk value is missing") TSRMLS_CC);
-            return NULL;
-        }
-
-        add_assoc_zval(condition, Z_STRVAL_P(pk), *ppzval);
-        Z_ADDREF_PP(ppzval);
-
-        table = tf_db_model_get_table(TSRMLS_CC);
-    }
-
-    tf_db_model_init(TSRMLS_CC);
-    zval *db = zend_read_static_property(tf_db_model_ce, ZEND_STRL(TF_DB_MODEL_PROPERTY_NAME_DB), 1 TSRMLS_CC);
-    zval *ret = tf_db_delete(db, Z_STRVAL_P(table), condition, params TSRMLS_CC);
-
-    if (db_model) {
-        zval_ptr_dtor(&condition);
-    }
-
-    return ret;
-}
-
 PHP_METHOD(tf_db_model, query) {
     zval *condition = NULL, *params = NULL, *fields = NULL;
     zend_bool for_update = 0 ; 
@@ -520,20 +342,60 @@ PHP_METHOD(tf_db_model, queryAll) {
 }
 
 PHP_METHOD(tf_db_model, update) {
-    zval *fields = NULL, *condition = NULL, *params = NULL;
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|zzz", &fields, &condition, &params)) {
+    zval *fields = NULL;
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|z", &fields)) {
         RETURN_FALSE;
     }
     
-    zval *me = getThis();
-    if (me && !instanceof_function(Z_OBJCE_P(me), tf_db_model_ce TSRMLS_CC)) {
-        me = NULL;
+    zval *data;
+    zval *model_data = tf_db_model_get_data(getThis() TSRMLS_CC);
+    if (fields && Z_TYPE_P(fields) == IS_ARRAY && zend_hash_num_elements(Z_ARRVAL_P(fields)) > 0) {
+        MAKE_STD_ZVAL(data);
+        array_init(data);
+        zval **field_ppzval, **value_ppzval;
+        for (zend_hash_internal_pointer_reset(Z_ARRVAL_P(fields));
+             zend_hash_get_current_data(Z_ARRVAL_P(fields), (void **)&field_ppzval) == SUCCESS;
+             zend_hash_move_forward(Z_ARRVAL_P(fields))) {
+            if (Z_TYPE_PP(field_ppzval) != IS_STRING) {
+                continue;
+            }
+            if (zend_hash_find(Z_ARRVAL_P(model_data), Z_STRVAL_PP(field_ppzval), Z_STRLEN_PP(field_ppzval) + 1, (void **)&value_ppzval) != SUCCESS) {
+                continue;
+            }
+            add_assoc_zval_ex(data, Z_STRVAL_PP(field_ppzval), Z_STRLEN_PP(field_ppzval) + 1, *value_ppzval);
+            Z_ADDREF_PP(value_ppzval);
+        }
+        if (zend_hash_num_elements(Z_ARRVAL_P(data)) == 0) {
+            zval_ptr_dtor(&data);
+            data = model_data;
+            Z_ADDREF_P(model_data);
+        }
+    } else {
+        data = model_data;
+        Z_ADDREF_P(model_data);
     }
 
-    zval *ret = tf_db_model_update(me, fields, condition, params TSRMLS_DC);
-    if (!ret) {
+    zval **ppzval;
+    zval *pk = tf_db_model_get_pk(TSRMLS_CC);
+    if (zend_hash_find(Z_ARRVAL_P(model_data), Z_STRVAL_P(pk), Z_STRLEN_P(pk) + 1, (void **)&ppzval) != SUCCESS) {
+        zval_ptr_dtor(&data);
+        tf_set_error_simple_msg(ZEND_STRL("pk value is missing") TSRMLS_CC);
         RETURN_FALSE;
     }
+
+    zval *condition;
+    MAKE_STD_ZVAL(condition);
+    array_init(condition);
+    add_assoc_zval(condition, Z_STRVAL_P(pk), *ppzval);
+    Z_ADDREF_PP(ppzval);
+
+    zval *table = tf_db_model_get_table(TSRMLS_CC);
+    tf_db_model_init(TSRMLS_CC);
+    zval *db = zend_read_static_property(tf_db_model_ce, ZEND_STRL(TF_DB_MODEL_PROPERTY_NAME_DB), 1 TSRMLS_CC);
+    zval *ret = tf_db_update(db, Z_STRVAL_P(table), data, condition, NULL TSRMLS_DC);
+
+    zval_ptr_dtor(&data);
+    zval_ptr_dtor(&condition);
 
     RETURN_ZVAL(ret, 0, 1);
 }
@@ -583,20 +445,25 @@ PHP_METHOD(tf_db_model, insert) {
 }
 
 PHP_METHOD(tf_db_model, delete) {
-    zval *condition, *params = NULL;
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|za", &condition, &params) != SUCCESS) {
+    zval *pk = tf_db_model_get_pk(TSRMLS_CC);
+    zval *model_data = tf_db_model_get_data(getThis() TSRMLS_CC);
+    zval **ppzval;
+    if (zend_hash_find(Z_ARRVAL_P(model_data), Z_STRVAL_P(pk), Z_STRLEN_P(pk) + 1, (void **)&ppzval) != SUCCESS) {
+        tf_set_error_simple_msg(ZEND_STRL("pk value is missing") TSRMLS_CC);
         RETURN_FALSE;
     }
 
-    zval *me = getThis();
-    if (me && !instanceof_function(Z_OBJCE_P(me), tf_db_model_ce TSRMLS_CC)) {
-        me = NULL;
-    }
+    zval *condition;
+    MAKE_STD_ZVAL(condition);
+    array_init(condition);
+    add_assoc_zval(condition, Z_STRVAL_P(pk), *ppzval);
+    Z_ADDREF_PP(ppzval);
 
-    zval *ret = tf_db_model_delete(me, condition, params TSRMLS_CC);
-    if (!ret) {
-        RETURN_FALSE;
-    }
+    tf_db_model_init(TSRMLS_CC);
+    zval *db = zend_read_static_property(tf_db_model_ce, ZEND_STRL(TF_DB_MODEL_PROPERTY_NAME_DB), 1 TSRMLS_CC);
+    zval *table = tf_db_model_get_table(TSRMLS_CC);
+    zval *ret = tf_db_delete(db, Z_STRVAL_P(table), condition, NULL TSRMLS_CC);
+    zval_ptr_dtor(&condition);
 
     RETURN_ZVAL(ret, 0, 1);
 }
@@ -611,13 +478,13 @@ PHP_METHOD(tf_db_model, deleteByPk) {
     zval *condition;
     MAKE_STD_ZVAL(condition);
     array_init(condition);
-    add_assoc_zval_ex(condition, Z_STRVAL_P(pk), Z_STRLEN_P(pk) + 1, id);
+    add_assoc_zval(condition, Z_STRVAL_P(pk), id);
 
-    zval *ret = tf_db_model_delete(NULL, condition, NULL TSRMLS_CC);
+    tf_db_model_init(TSRMLS_CC);
+    zval *db = zend_read_static_property(tf_db_model_ce, ZEND_STRL(TF_DB_MODEL_PROPERTY_NAME_DB), 1 TSRMLS_CC);
+    zval *table = tf_db_model_get_table(TSRMLS_CC);
+    zval *ret = tf_db_delete(db, Z_STRVAL_P(table), condition, NULL TSRMLS_CC);
     zval_ptr_dtor(&condition);
-    if (!ret) {
-        RETURN_FALSE;
-    }
 
     RETURN_ZVAL(ret, 0, 1);
 }
@@ -640,10 +507,10 @@ zend_function_entry tf_db_model_methods[]= {
     PHP_ME(tf_db_model, query, tf_db_model_query_arginfo, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(tf_db_model, queryByPk, tf_db_model_queryByPk_arginfo, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(tf_db_model, queryAll, tf_db_model_queryAll_arginfo, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(tf_db_model, update, tf_db_model_update_arginfo, ZEND_ACC_PUBLIC | ZEND_ACC_ALLOW_STATIC)
+    PHP_ME(tf_db_model, update, tf_db_model_update_arginfo, ZEND_ACC_PUBLIC)
     PHP_ME(tf_db_model, updateByPk, tf_db_model_updateByPk_arginfo, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(tf_db_model, insert, tf_db_model_insert_arginfo, ZEND_ACC_PUBLIC)
-    PHP_ME(tf_db_model, delete, tf_db_model_delete_arginfo, ZEND_ACC_PUBLIC | ZEND_ACC_ALLOW_STATIC)
+    PHP_ME(tf_db_model, delete, tf_db_model_delete_arginfo, ZEND_ACC_PUBLIC)
     PHP_ME(tf_db_model, deleteByPk, tf_db_model_deleteByPk_arginfo, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(tf_db_model, count, tf_db_model_count_arginfo, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     {NULL, NULL, NULL}
