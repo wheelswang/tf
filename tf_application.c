@@ -39,6 +39,10 @@ ZEND_BEGIN_ARG_INFO_EX(tf_application_getSession_arginfo, 0, 0, 1)
     ZEND_ARG_INFO(0, session_id)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(tf_application_getRedis_arginfo, 0, 0, 1)
+    ZEND_ARG_INFO(0, name)
+ZEND_END_ARG_INFO()
+
 zval * tf_application_constructor(zval *application, char *config_file, int config_file_len, char *config_section, int config_section_len TSRMLS_DC) {
     if (Z_TYPE_P(tf_get_application(TSRMLS_CC)) != IS_NULL) {
         php_error_docref(NULL TSRMLS_CC, E_ERROR, "application has already been initialized");
@@ -49,24 +53,24 @@ zval * tf_application_constructor(zval *application, char *config_file, int conf
     zend_update_property(tf_application_ce, application, ZEND_STRL(TF_APPLICATION_PROPERTY_NAME_CONFIG), config TSRMLS_CC);
     zval_ptr_dtor(&config);
 
-    zval *application_root = tf_config_get(config, "root" TSRMLS_CC);
+    zval *application_root = tf_config_get(config, ZEND_STRL("root") TSRMLS_CC);
     if (!application_root) {
         php_error_docref(NULL TSRMLS_CC, E_ERROR, "root not defined");
     }
     convert_to_string(application_root);
     zend_update_property(tf_application_ce, application, ZEND_STRL(TF_APPLICATION_PROPERTY_NAME_ROOT_PATH), application_root TSRMLS_CC);
     
-    zval *load_paths = tf_config_get(config, "loader.paths" TSRMLS_CC);
+    zval *load_paths = tf_config_get(config, ZEND_STRL("loader.paths") TSRMLS_CC);
     zval *loader = tf_loader_constructor(NULL, application_root, load_paths TSRMLS_CC);
     zend_update_property(tf_application_ce, application, ZEND_STRL(TF_APPLICATION_PROPERTY_NAME_LOADER), loader TSRMLS_CC);
     zval_ptr_dtor(&loader);
 
-    zval *use_session = tf_config_get(config, "session.use" TSRMLS_CC);
+    zval *use_session = tf_config_get(config, ZEND_STRL("session.use") TSRMLS_CC);
     if (use_session) {
         convert_to_boolean(use_session);
     }
     if (!use_session || Z_BVAL_P(use_session)) {
-        zval *session_config = tf_config_get(config, "session");
+        zval *session_config = tf_config_get(config, ZEND_STRL("session"));
         if (session_config) {
             convert_to_array(session_config);
             zval *session = tf_session_constructor(NULL, session_config TSRMLS_CC);
@@ -91,13 +95,13 @@ zval * tf_application_get_db(zval *application TSRMLS_DC) {
     }
 
     zval *config = tf_application_get_config(application TSRMLS_CC);
-    zval *server = tf_config_get(config, "db.server");
-    zval *user = tf_config_get(config, "db.user");
-    zval *password = tf_config_get(config, "db.password");
-    zval *dbname = tf_config_get(config, "db.dbname");
-    zval *charset = tf_config_get(config, "db.charset");
-    zval *persistent = tf_config_get(config, "db.persistent");
-    zval *slave_configs = tf_config_get(config, "db.slaves");
+    zval *server = tf_config_get(config, ZEND_STRL("db.server"));
+    zval *user = tf_config_get(config, ZEND_STRL("db.user"));
+    zval *password = tf_config_get(config, ZEND_STRL("db.password"));
+    zval *dbname = tf_config_get(config, ZEND_STRL("db.dbname"));
+    zval *charset = tf_config_get(config, ZEND_STRL("db.charset"));
+    zval *persistent = tf_config_get(config, ZEND_STRL("db.persistent"));
+    zval *slave_configs = tf_config_get(config, ZEND_STRL("db.slaves"));
     if (!server || !user || !password || !dbname) {
         php_error_docref(NULL TSRMLS_CC, E_ERROR, "db config miss");
     }
@@ -123,39 +127,61 @@ zval * tf_application_get_db(zval *application TSRMLS_DC) {
     return db;
 }
 
-zval * tf_application_get_redis(zval *application TSRMLS_DC) {
-    zval *redis = zend_read_property(tf_application_ce, application, ZEND_STRL(TF_APPLICATION_PROPERTY_NAME_REDIS), 1 TSRMLS_CC);
-    if (Z_TYPE_P(redis) != IS_NULL) {
-        return redis;
+zval * tf_application_get_redis(zval *application, char *name, int name_len TSRMLS_DC) {
+    zval *redis_array = zend_read_property(tf_application_ce, application, ZEND_STRL(TF_APPLICATION_PROPERTY_NAME_REDIS_ARRAY), 1 TSRMLS_CC);
+    if (Z_TYPE_P(redis_array) == IS_ARRAY) {
+        zval **redis;
+        if (zend_hash_find(Z_ARRVAL_P(redis_array), name, name_len + 1, (void **)&redis) == SUCCESS) {
+            return *redis;
+        }
+    }
+
+    if (Z_TYPE_P(redis_array) == IS_NULL) {
+        zval *new_redis_array;
+        MAKE_STD_ZVAL(new_redis_array);
+        array_init(new_redis_array);
+        redis_array = new_redis_array;
+        zend_update_property(tf_application_ce, application, ZEND_STRL(TF_APPLICATION_PROPERTY_NAME_REDIS_ARRAY), redis_array TSRMLS_CC);
+        zval_ptr_dtor(&redis_array);
     }
 
     zval *config = tf_application_get_config(application TSRMLS_CC);
-    zval *server = tf_config_get(config, "redis.server");
-    zval *password = tf_config_get(config, "redis.password");
-    zval *index = tf_config_get(config, "redis.index");
-    zval *serialize = tf_config_get(config, "redis.serialize");
-    zval *prefix = tf_config_get(config, "redis.prefix");
-    if (!server) {
+    zval *redis_config = tf_config_get(config, name, name_len TSRMLS_CC);
+    if (!redis_config || Z_TYPE_P(redis_config) != IS_ARRAY) {
         php_error_docref(NULL TSRMLS_CC, E_ERROR, "redis config miss");
     }
 
-    convert_to_string(server);
-    if (password) {
-        convert_to_string(password);
-    }
-    if (index) {
-        convert_to_long(index);
-    }
-    if (serialize) {
-        convert_to_boolean(serialize);
-    }
-    if (prefix) {
-        convert_to_string(prefix);
+    zval **server = NULL;
+    if (zend_hash_find(Z_ARRVAL_P(redis_config), ZEND_STRS("server"), (void **)&server) != SUCCESS) {
+        php_error_docref(NULL TSRMLS_CC, E_ERROR, "redis config miss server");
     }
 
-    redis = tf_redis_constructor(NULL, server, password, index, serialize, prefix TSRMLS_CC);
-    zend_update_property(tf_application_ce, application, ZEND_STRL(TF_APPLICATION_PROPERTY_NAME_REDIS), redis TSRMLS_CC);
-    zval_ptr_dtor(&redis);
+
+    zval **password = NULL;
+    zend_hash_find(Z_ARRVAL_P(redis_config), ZEND_STRS("password"), (void **)&password);
+    zval **index = NULL;
+    zend_hash_find(Z_ARRVAL_P(redis_config), ZEND_STRS("index"), (void **)&index);
+    zval **serialize = NULL;
+    zend_hash_find(Z_ARRVAL_P(redis_config), ZEND_STRS("serialize"), (void **)&serialize);
+    zval **prefix = NULL;
+    zend_hash_find(Z_ARRVAL_P(redis_config), ZEND_STRS("prefix"), (void **)&prefix);
+
+    convert_to_string(*server);
+    if (password) {
+        convert_to_string(*password);
+    }
+    if (index) {
+        convert_to_long(*index);
+    }
+    if (serialize) {
+        convert_to_boolean(*serialize);
+    }
+    if (prefix) {
+        convert_to_string(*prefix);
+    }
+
+    zval *redis = tf_redis_constructor(NULL, *server, password ? *password : NULL, index ? *index : NULL, serialize ? *serialize : NULL, prefix ? *prefix : NULL TSRMLS_CC);
+    add_assoc_zval(redis_array, name, redis);
 
     return redis;
 }
@@ -173,7 +199,7 @@ zval * tf_application_get_logger(zval *application TSRMLS_DC) {
 
     zval *root_path = tf_application_get_root_path(application TSRMLS_CC);
     zval *config = tf_application_get_config(application TSRMLS_CC);
-    zval *max_size = tf_config_get(config, "logMaxSize" TSRMLS_CC);
+    zval *max_size = tf_config_get(config, ZEND_STRL("logMaxSize") TSRMLS_CC);
     if (max_size) {
         convert_to_long(max_size);
     }
@@ -207,7 +233,19 @@ PHP_METHOD(tf_application, getDB) {
 }
 
 PHP_METHOD(tf_application, getRedis) {
-    zval *redis = tf_application_get_redis(getThis() TSRMLS_CC);
+    char *name = NULL;
+    int name_len = 0;
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|s", &name, &name_len) != SUCCESS) {
+        RETURN_FALSE;
+    }
+
+    zval *redis;
+    if (name == NULL) {
+        redis = tf_application_get_redis(getThis(), ZEND_STRL("redis") TSRMLS_CC);
+    } else {
+        redis = tf_application_get_redis(getThis(), name, name_len TSRMLS_CC);
+    }
+
     RETURN_ZVAL(redis, 1, 0);
 }
 
@@ -229,7 +267,7 @@ PHP_METHOD(tf_application, getLoader) {
 zend_function_entry tf_application_methods[] = {
     PHP_ME(tf_application, getConfig, NULL, ZEND_ACC_PUBLIC)
     PHP_ME(tf_application, getDB, NULL, ZEND_ACC_PUBLIC)
-    PHP_ME(tf_application, getRedis, NULL, ZEND_ACC_PUBLIC)
+    PHP_ME(tf_application, getRedis, tf_application_getRedis_arginfo, ZEND_ACC_PUBLIC)
     PHP_ME(tf_application, getSession, NULL, ZEND_ACC_PUBLIC)
     PHP_ME(tf_application, getLogger, NULL, ZEND_ACC_PUBLIC)
     PHP_ME(tf_application, getLoader, NULL, ZEND_ACC_PUBLIC)
@@ -245,7 +283,7 @@ ZEND_MINIT_FUNCTION(tf_application) {
     zend_declare_property_null(tf_application_ce, ZEND_STRL(TF_APPLICATION_PROPERTY_NAME_CONFIG), ZEND_ACC_PROTECTED TSRMLS_CC);
     zend_declare_property_null(tf_application_ce, ZEND_STRL(TF_APPLICATION_PROPERTY_NAME_ROOT_PATH), ZEND_ACC_PROTECTED TSRMLS_CC);
     zend_declare_property_null(tf_application_ce, ZEND_STRL(TF_APPLICATION_PROPERTY_NAME_DB), ZEND_ACC_PROTECTED TSRMLS_CC);
-    zend_declare_property_null(tf_application_ce, ZEND_STRL(TF_APPLICATION_PROPERTY_NAME_REDIS), ZEND_ACC_PROTECTED TSRMLS_CC);
+    zend_declare_property_null(tf_application_ce, ZEND_STRL(TF_APPLICATION_PROPERTY_NAME_REDIS_ARRAY), ZEND_ACC_PROTECTED TSRMLS_CC);
     zend_declare_property_null(tf_application_ce, ZEND_STRL(TF_APPLICATION_PROPERTY_NAME_SESSION), ZEND_ACC_PROTECTED TSRMLS_CC);
     zend_declare_property_null(tf_application_ce, ZEND_STRL(TF_APPLICATION_PROPERTY_NAME_LOGGER), ZEND_ACC_PROTECTED TSRMLS_CC);
     zend_declare_property_null(tf_application_ce, ZEND_STRL(TF_APPLICATION_PROPERTY_NAME_LOADER), ZEND_ACC_PROTECTED TSRMLS_CC);

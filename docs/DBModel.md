@@ -29,15 +29,11 @@ public static array [queryAll](#queryall)(mixed condition = null, array params =
 
 public bool [update](#update)(array fields = null)
 
-public static bool [update](#update_static)(array data, mixed condition, array params = null)
-
 public static bool [updateByPk](#updatebypk)(string id, array data)
 
 public bool [insert](#insert)(void)
 
 public bool [delete](#delete)(void)
-
-public static bool [delete](#delete_static)(mixed condition, array params = null)
 
 public static bool [deleteByPk](#deletebypk)(string id)
 
@@ -113,21 +109,6 @@ public static int [count](#count)(mixed condition = null, array params = null)
 
 -----
 
-## update
-### 定义
-    public static bool update(array data, mixed condition, array params = null)
-### 参数
-#### data
-需要更新的数据 如： array('field1' => 1, 'field2' => 2)
-#### condition
-更新条件 如： "id=:id" 或 array('id' => 1)
-#### params [optional]
-绑定参数 如：array(':id' => 1)
-### 返回值
-成功true 失败false
-
------
-
 ## updateByPk
 ### 定义
     public static bool updateByPk(string id, array data)
@@ -156,20 +137,6 @@ public static int [count](#count)(mixed condition = null, array params = null)
     public bool delete(void)
 ### 参数
 无
-### 返回值
-成功true 失败false
-
------
-
-## delete
-### 定义
-    public static bool delete(mixed condition, array params = null)
-### 参数
-#### condition
-删除条件 如：'id=:id' 或者 array('id' => 1)
-安全考虑，此参数为必传参数
-#### params [optional]
-绑定参数 如：array(':id' => 1)
 ### 返回值
 成功true 失败false
 

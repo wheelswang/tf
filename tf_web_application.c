@@ -74,7 +74,7 @@ void * tf_web_application_run_error_controller(zval *web_application, int error_
     MAKE_STD_ZVAL(controller);
     object_init_ex(controller, controller_ce);
     zval *config = zend_read_property(tf_web_application_ce, web_application, ZEND_STRL(TF_APPLICATION_PROPERTY_NAME_CONFIG), 1 TSRMLS_CC);
-    zval *view_ext = tf_config_get(config, "view.ext" TSRMLS_CC);
+    zval *view_ext = tf_config_get(config, ZEND_STRL("view.ext") TSRMLS_CC);
     if (view_ext) {
         convert_to_string(view_ext);
     }
@@ -113,7 +113,7 @@ PHP_METHOD(tf_web_application, __construct) {
     tf_application_constructor(getThis(), config_file, config_file_len, config_section, config_section_len TSRMLS_CC);
 
     zval *config = zend_read_property(tf_web_application_ce, getThis(), ZEND_STRL(TF_APPLICATION_PROPERTY_NAME_CONFIG), 1 TSRMLS_CC);
-    zval *modules = tf_config_get(config, "module.availables" TSRMLS_CC);
+    zval *modules = tf_config_get(config, ZEND_STRL("module.availables") TSRMLS_CC);
     if (modules) {
         zval *modules_pzval, *delim;
         MAKE_STD_ZVAL(modules_pzval);
@@ -125,7 +125,7 @@ PHP_METHOD(tf_web_application, __construct) {
         zval_ptr_dtor(&modules_pzval);
         zval_ptr_dtor(&delim);
 
-        zval *default_module = tf_config_get(config, "module.default" TSRMLS_CC);
+        zval *default_module = tf_config_get(config, ZEND_STRL("module.default") TSRMLS_CC);
         if (default_module) {
             zend_update_property(tf_web_application_ce, getThis(), ZEND_STRL(TF_WEB_APPLICATION_PROPERTY_NAME_DEFAULT_MODULE), default_module TSRMLS_CC);
         }
@@ -139,7 +139,7 @@ PHP_METHOD(tf_web_application, __construct) {
     zval *router = tf_router_constructor(NULL, Z_STRVAL_P(url) TSRMLS_CC);
     zend_update_property(tf_web_application_ce, getThis(), ZEND_STRL(TF_WEB_APPLICATION_PROPERTY_NAME_ROUTER), router TSRMLS_CC);
     zval_ptr_dtor(&router);
-    zval *rules = tf_config_get(config, "router.rules");
+    zval *rules = tf_config_get(config, ZEND_STRL("router.rules") TSRMLS_CC);
     if (rules && Z_TYPE_P(rules) == IS_ARRAY) {
         zval **rule;
         zval **search, **replace;
@@ -214,7 +214,7 @@ PHP_METHOD(tf_web_application, run) {
         php_error_docref(NULL TSRMLS_CC, E_ERROR, "cannot loade controller: %s", Z_STRVAL_P(controller_name));
     }
     zval *config = zend_read_property(tf_web_application_ce, getThis(), ZEND_STRL(TF_APPLICATION_PROPERTY_NAME_CONFIG), 1 TSRMLS_CC);
-    zval *view_ext = tf_config_get(config, "view.ext" TSRMLS_CC);
+    zval *view_ext = tf_config_get(config, ZEND_STRL("view.ext") TSRMLS_CC);
     if (view_ext) {
         convert_to_string(view_ext);
     }

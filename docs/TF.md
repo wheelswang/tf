@@ -134,10 +134,11 @@ TF\DB实例
 
 ## getRedis
 ### 定义
-    public static TF\Redis function getRedis()
+    public static TF\Redis function getRedis(string name = 'redis')
 此函数是TF::getApp()->getRedis的别名
 ### 参数
-无
+#### name
+配置名称
 ### 返回值
 TF\Redis实例
 

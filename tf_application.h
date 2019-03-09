@@ -20,7 +20,7 @@
 #define TF_APPLICATION_PROPERTY_NAME_ROOT_PATH "_root_path"
 #define TF_APPLICATION_PROPERTY_NAME_CONFIG "_config"
 #define TF_APPLICATION_PROPERTY_NAME_DB "_db"
-#define TF_APPLICATION_PROPERTY_NAME_REDIS "_redis"
+#define TF_APPLICATION_PROPERTY_NAME_REDIS_ARRAY "_redis_array"
 #define TF_APPLICATION_PROPERTY_NAME_SESSION "_session"
 #define TF_APPLICATION_PROPERTY_NAME_LOGGER "_logger"
 #define TF_APPLICATION_PROPERTY_NAME_LOADER "_loader"
@@ -33,7 +33,7 @@ zval * tf_application_get_config(zval *application TSRMLS_DC);
 
 zval * tf_application_get_db(zval *application TSRMLS_DC);
 
-zval * tf_application_get_redis(zval *application TSRMLS_DC);
+zval * tf_application_get_redis(zval *application, char *name, int name_len TSRMLS_DC);
 
 zval * tf_application_get_session(zval *application TSRMLS_DC);
 

@@ -112,8 +112,9 @@ application\\conf\\application.ini
 application\\public\\index.php
 
     <?php
+    
     define('ROOT_PATH', __DIR__ . '/..');
-    $app = new TF\\WebApplication(ROOT_PATH . '/config/application.ini', TF::getEnv());
+    $app = new TF\WebApplication(ROOT_PATH . '/config/application.ini', TF::getEnv());
     $app->run();
 
 ## 模块初始化
@@ -121,6 +122,7 @@ application\\public\\index.php
 
 ## 控制器
     <?php
+
     namespace application\web\controller;
 
     class IndexController extends \TF\Controller

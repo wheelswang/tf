@@ -50,9 +50,10 @@ TF\\DB实例
 
 ## getRedis
 ### 定义
-    public TF\Redis function getRedis(void)
+    public TF\Redis function getRedis(string name = 'redis')
 ### 参数
-无
+#### name
+配置名称
 ### 返回值
 TF\\Redis实例
 

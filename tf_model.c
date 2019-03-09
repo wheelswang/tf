@@ -21,11 +21,17 @@
 #include "php.h"
 #include "ext/standard/php_smart_str.h"
 #include "ext/date/php_date.h"
+#include "tf_common.h"
 #include "tf_model.h"
 
 zend_class_entry *tf_model_ce;
 
 ZEND_BEGIN_ARG_INFO_EX(tf_model_toArray_arginfo, 0, 0, 1)
+    ZEND_ARG_INFO(0, camel_case)
+ZEND_END_ARG_INFO()
+
+ZEND_BEGIN_ARG_INFO_EX(tf_model_fromArray_arginfo, 0, 0, 2)
+    ZEND_ARG_INFO(0, array)
     ZEND_ARG_INFO(0, camel_case)
 ZEND_END_ARG_INFO()
 
@@ -142,100 +148,18 @@ zval * tf_model_constructor(zval *model TSRMLS_DC) {
     }
 }
 
-PHP_METHOD(tf_model, __construct) {
-    tf_model_constructor(getThis() TSRMLS_CC);
-}
-
-PHP_METHOD(tf_model, toArray) {
-    zend_bool camel_case = 0;
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|b", &camel_case) != SUCCESS) {
-        return;
-    }
-
-    zval *data = zend_read_property(tf_model_ce, getThis(), ZEND_STRL(TF_MODEL_PROPERTY_NAME_DATA), 1 TSRMLS_CC);
-    if (Z_TYPE_P(data) != IS_ARRAY) {
-        return;
-    }
-    zval *ret, **ppzval;
-    MAKE_STD_ZVAL(ret);
-    array_init(ret);
-    char *str_index;
-    int str_index_len;
-    ulong num_index;
-    for (zend_hash_internal_pointer_reset(Z_ARRVAL_P(data));
-         zend_hash_get_current_data(Z_ARRVAL_P(data), (void *)&ppzval) == SUCCESS;
-         zend_hash_move_forward(Z_ARRVAL_P(data))) {
-        switch (zend_hash_get_current_key_ex(Z_ARRVAL_P(data), &str_index, &str_index_len, &num_index, 0, NULL)) {
-            case HASH_KEY_IS_STRING:
-                if (!camel_case || !str_index_len) {
-                    add_assoc_zval_ex(ret, str_index, str_index_len, *ppzval);
-                    Z_ADDREF_PP(ppzval);
-                    break;
-                }
-
-                smart_str camel_key = {0};
-                char *last_pos = str_index;
-                char *pos = strstr(last_pos, "_");
-                while (1) {
-                    if (!pos) {
-                        smart_str_appendl(&camel_key, last_pos, str_index + str_index_len - 1 - last_pos);
-                        break;
-                    }
-
-                    if (pos == last_pos) {
-                        if (pos - str_index == str_index_len - 2) { // last char
-                            break;
-                        }
-                        last_pos = pos + 1;
-                        pos = strstr(last_pos, "_");
-                        continue;
-                    }
-
-                    smart_str_appendl(&camel_key, last_pos, pos - last_pos);
-                    if (pos - str_index == str_index_len - 2) { // last char
-                        break;
-                    }
-
-                    smart_str_appendc(&camel_key, toupper(*(pos + 1)));
-                    if (pos - str_index == str_index_len - 3) {
-                        break;
-                    }
-
-                    last_pos = pos + 2;
-                    pos = strstr(last_pos, "_");
-                }
-                smart_str_0(&camel_key);
-                add_assoc_zval_ex(ret, camel_key.c, camel_key.len + 1, *ppzval);
-                Z_ADDREF_PP(ppzval);
-                efree(camel_key.c);
-                break;
-            case HASH_KEY_IS_LONG:
-                add_index_zval(ret, num_index, *ppzval);
-                Z_ADDREF_PP(ppzval);
-                break;
-        }
-    }
-
-    RETURN_ZVAL(ret, 0, 1);
-}
-
-PHP_METHOD(tf_model, __set) {
-    zval *name, *value;
-    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "zz", &name, &value) == FAILURE) {
-        return;
-    }
-
+void tf_model_set(zval *model, char *name, int name_len, zval *value TSRMLS_DC) {
     zval *fields = zend_read_static_property(EG(called_scope), ZEND_STRL(TF_MODEL_PROPERTY_NAME_FIELDS), 1 TSRMLS_CC);
     if (Z_TYPE_P(fields) != IS_ARRAY) {
         return;
     }
 
     zval **ppzval;
-    if (zend_hash_find(Z_ARRVAL_P(fields), Z_STRVAL_P(name), Z_STRLEN_P(name) + 1, (void **)&ppzval) != SUCCESS) {
+    if (zend_hash_find(Z_ARRVAL_P(fields), name, name_len + 1, (void **)&ppzval) != SUCCESS) {
         return;
     }
 
-    zval *data = zend_read_property(tf_model_ce, getThis(), ZEND_STRL(TF_MODEL_PROPERTY_NAME_DATA), 1 TSRMLS_CC);
+    zval *data = zend_read_property(tf_model_ce, model, ZEND_STRL(TF_MODEL_PROPERTY_NAME_DATA), 1 TSRMLS_CC);
     if (Z_TYPE_P(data) != IS_ARRAY) {
         return;
     }
@@ -267,8 +191,181 @@ PHP_METHOD(tf_model, __set) {
         return;
     }
 
-    add_assoc_zval_ex(data, Z_STRVAL_P(name), Z_STRLEN_P(name) + 1, value);
+    add_assoc_zval_ex(data, name, name_len + 1, value);
     Z_ADDREF_P(value);
+}
+
+char * tf_model_get_camel_str(char *str, int str_len, char **camel_key, int *camel_key_len) {
+    smart_str smart_camel_key = {0};
+    char *last_pos = str;
+    char *pos = strstr(last_pos, "_");
+    while (1) {
+        if (!pos) {
+            smart_str_appendl(&smart_camel_key, last_pos, str + str_len - 1 - last_pos);
+            break;
+        }
+
+        if (pos == last_pos) {
+            if (pos - str == str_len - 2) { // last char
+                break;
+            }
+            last_pos = pos + 1;
+            pos = strstr(last_pos, "_");
+            continue;
+        }
+
+        smart_str_appendl(&smart_camel_key, last_pos, pos - last_pos);
+        if (pos - str == str_len - 2) { // last char
+            break;
+        }
+
+        smart_str_appendc(&smart_camel_key, toupper(*(pos + 1)));
+        if (pos - str == str_len - 3) {
+            break;
+        }
+
+        last_pos = pos + 2;
+        pos = strstr(last_pos, "_");
+    }
+    smart_str_0(&smart_camel_key);
+
+    *camel_key = smart_camel_key.c;
+    *camel_key_len = smart_camel_key.len;
+}
+
+void tf_model_get_no_camel_str(char *str, char **no_camel_key, int *no_camel_key_len) {
+    smart_str new_smart_key = {0};
+    char *last_pos = str;
+    char *pos = str;
+    while (1) {
+        if (*pos == 0x00) {
+            if (pos > last_pos) {
+                smart_str_appendl(&new_smart_key, last_pos, pos - last_pos);
+            }
+            break;
+        }
+
+        if (*pos >= 65 && *pos <= 90) {
+            if (pos > last_pos) {
+                smart_str_appendl(&new_smart_key, last_pos, pos - last_pos);
+            }
+            smart_str_appendc(&new_smart_key, '_');
+            smart_str_appendc(&new_smart_key, tolower(*pos));
+            last_pos = pos + 1;
+        }
+        
+        pos++;
+    }
+
+    if (new_smart_key.len == 0) {
+        smart_str_appendc(&new_smart_key, 0x00);
+    } else {
+        smart_str_0(&new_smart_key);
+    }
+    *no_camel_key = new_smart_key.c;
+    *no_camel_key_len = new_smart_key.len;
+}
+
+PHP_METHOD(tf_model, __construct) {
+    tf_model_constructor(getThis() TSRMLS_CC);
+}
+
+PHP_METHOD(tf_model, toArray) {
+    zend_bool camel_case = FALSE;
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|b", &camel_case) != SUCCESS) {
+        return;
+    }
+
+    zval *data = zend_read_property(tf_model_ce, getThis(), ZEND_STRL(TF_MODEL_PROPERTY_NAME_DATA), 1 TSRMLS_CC);
+    if (Z_TYPE_P(data) != IS_ARRAY) {
+        return;
+    }
+    zval *ret, **ppzval;
+    MAKE_STD_ZVAL(ret);
+    array_init(ret);
+    char *str_index;
+    int str_index_len;
+    ulong num_index;
+    for (zend_hash_internal_pointer_reset(Z_ARRVAL_P(data));
+         zend_hash_get_current_data(Z_ARRVAL_P(data), (void *)&ppzval) == SUCCESS;
+         zend_hash_move_forward(Z_ARRVAL_P(data))) {
+        switch (zend_hash_get_current_key_ex(Z_ARRVAL_P(data), &str_index, &str_index_len, &num_index, 0, NULL)) {
+            case HASH_KEY_IS_STRING:
+                if (!camel_case || !str_index_len) {
+                    add_assoc_zval_ex(ret, str_index, str_index_len, *ppzval);
+                    Z_ADDREF_PP(ppzval);
+                    break;
+                }
+
+                char *camel_key;
+                int camel_key_len;
+                tf_model_get_camel_str(str_index, str_index_len, &camel_key, &camel_key_len);
+                add_assoc_zval_ex(ret, camel_key, camel_key_len + 1 , *ppzval);
+                Z_ADDREF_PP(ppzval);
+                efree(camel_key);
+                break;
+            case HASH_KEY_IS_LONG:
+                add_index_zval(ret, num_index, *ppzval);
+                Z_ADDREF_PP(ppzval);
+                break;
+        }
+    }
+
+    RETURN_ZVAL(ret, 0, 1);
+}
+
+PHP_METHOD(tf_model, fromArray) {
+    zval *array;
+    zend_bool camel_case = FALSE;
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a|b", &array, &camel_case) == FAILURE) {
+        RETURN_NULL();
+    }
+
+    zval *model;
+    MAKE_STD_ZVAL(model);
+    object_init_ex(model, EG(called_scope));
+    tf_model_constructor(model TSRMLS_CC);
+
+    zval **ppzval;
+    for (zend_hash_internal_pointer_reset(Z_ARRVAL_P(array));
+         zend_hash_has_more_elements(Z_ARRVAL_P(array)) == SUCCESS;
+         zend_hash_move_forward(Z_ARRVAL_P(array))) {
+        zend_hash_get_current_data(Z_ARRVAL_P(array), (void **)&ppzval);
+        char *str_index = NULL;
+        int str_index_len;
+        ulong num_index;
+        zend_bool need_free_index = TRUE;
+        if (zend_hash_get_current_key_ex(Z_ARRVAL_P(array), &str_index, &str_index_len, &num_index, 0, NULL) != HASH_KEY_IS_STRING) {
+            spprintf(&str_index, 0, "%d", num_index);
+            str_index_len = strlen(str_index) + 1;
+            need_free_index = FALSE;
+        } else if (camel_case) {
+            char *no_camel_key;
+            int no_camel_key_len;
+            tf_model_get_no_camel_str(str_index, &no_camel_key, &no_camel_key_len);
+            str_index = no_camel_key;
+            str_index_len = no_camel_key_len + 1;
+        }
+
+        tf_model_set(model, str_index, str_index_len - 1, *ppzval TSRMLS_CC);
+
+        if (need_free_index) {
+            efree(str_index);
+        }
+    }
+
+    RETURN_ZVAL(model, 0, 1);
+}
+
+PHP_METHOD(tf_model, __set) {
+    char *name;
+    int name_len;
+    zval *value;
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "sz", &name, &name_len, &value) == FAILURE) {
+        return;
+    }
+
+    tf_model_set(getThis(), name, name_len, value TSRMLS_CC);
 }
 
 PHP_METHOD(tf_model, __get) {
@@ -293,6 +390,7 @@ PHP_METHOD(tf_model, __get) {
 zend_function_entry tf_model_methods[] = {
     PHP_ME(tf_model, __construct, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
     PHP_ME(tf_model, toArray, tf_model_toArray_arginfo, ZEND_ACC_PUBLIC)
+    PHP_ME(tf_model, fromArray, tf_model_fromArray_arginfo, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(tf_model, __set, tf_model___set_arginfo, ZEND_ACC_PUBLIC)
     PHP_ME(tf_model, __get, tf_model___get_arginfo, ZEND_ACC_PUBLIC)
     {NULL, NULL, NULL}

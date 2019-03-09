@@ -25,6 +25,6 @@
 #define TF_CONFIG_PROPERTY_NAME_SECTION "_section"
 
 zval * tf_config_constructor(zval *config, char *file, int file_len, char *section, int section_len TSRMLS_DC);
-zval * tf_config_get(zval *config, char *key TSRMLS_DC);
+zval * tf_config_get(zval *config, char *key, int key_len TSRMLS_DC);
 
 #endif

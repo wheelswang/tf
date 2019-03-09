@@ -18,6 +18,7 @@ public [__construct](#__construct)(void)
 
 public array [toArray](#toarray)(bool camelCase = false)
 
+public static Model [fromArray](#fromarray)(array arr)
 
 ## $\_fields
 字段定义，如：
@@ -45,3 +46,14 @@ public array [toArray](#toarray)(bool camelCase = false)
 使用驼峰命名法，默认为false
 ### 返回值
 数组
+
+-----
+
+## fromArray
+### 定义
+    public static Model fromArray(array arr)
+### 参数
+#### arr
+数组
+### 返回值
+模型实例

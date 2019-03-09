@@ -381,7 +381,7 @@ zval * tf_config_constructor(zval *config, char *file, int file_len, char *secti
     return config;
 }
 
-zval * tf_config_get(zval *config, char *key TSRMLS_DC) {
+zval * tf_config_get(zval *config, char *key, int key_len TSRMLS_DC) {
     zval *config_data = zend_read_property(tf_config_ce, config, ZEND_STRL(TF_CONFIG_PROPERTY_NAME_DATA), 1 TSRMLS_CC);
     if (!config_data) {
         return NULL;
@@ -390,7 +390,7 @@ zval * tf_config_get(zval *config, char *key TSRMLS_DC) {
     zval **ppzval, *ret_val = NULL;
     HashTable *hash_table = Z_ARRVAL_P(config_data);
     char *ptr, *orig_ptr, *next;
-    ptr = orig_ptr = estrndup(key, strlen(key));
+    ptr = orig_ptr = estrndup(key, key_len);
     while (1) {
         next = strchr(ptr, '.');
         if (next) {
@@ -439,7 +439,7 @@ PHP_METHOD(tf_config, get) {
         return;
     }
 
-    zval *pzval = tf_config_get(getThis(), Z_STRVAL_P(key));
+    zval *pzval = tf_config_get(getThis(), Z_STRVAL_P(key), Z_STRLEN_P(key) TSRMLS_CC);
     if (pzval) {
         RETVAL_ZVAL(pzval, 1, 0);
     }

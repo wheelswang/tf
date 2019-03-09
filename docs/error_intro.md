@@ -8,15 +8,17 @@
 如果没有定义ErrorController，则会直接输出errMsg
 
 ## 示例
-    <?
+    <?php
+
     namespace application\web\controller;
+
     use TF;
 
     class ErrorController extends TF\Controller
     {
         public function index($errType, $errMsg, $errFile, $errLineNo)
         {
-            if ($this->getRequest()->isAjax()) {
+            if (TF::getApp()->getRequest()->isAjax()) {
                 $this->ajaxError($errMsg);
             } else {
                 $this->assign(array(

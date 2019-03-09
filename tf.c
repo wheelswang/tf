@@ -48,6 +48,11 @@ ZEND_BEGIN_ARG_INFO_EX(tf_setErrorMsg_arginfo, 0, 0, 2)
     ZEND_ARG_INFO(0, error_detail)
 ZEND_END_ARG_INFO()
 
+ZEND_BEGIN_ARG_INFO_EX(tf_getRedis_arginfo, 0, 0, 1)
+    ZEND_ARG_INFO(0, name)
+ZEND_END_ARG_INFO()
+
+
 zend_class_entry *tf_ce;
 extern zend_class_entry *tf_error_ce;
 
@@ -184,7 +189,18 @@ PHP_METHOD(tf, getRedis) {
         RETURN_FALSE;
     }
 
-    zval *redis = tf_application_get_redis(application TSRMLS_CC);
+    char *name = NULL;
+    int name_len = 0;
+    if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|s", &name, &name_len) != SUCCESS) {
+        RETURN_FALSE;
+    }
+
+    zval *redis;
+    if (name == NULL) {
+        redis = tf_application_get_redis(application, ZEND_STRL("redis") TSRMLS_CC);
+    } else {
+        redis = tf_application_get_redis(application, name, name_len TSRMLS_CC);
+    }
 
     RETURN_ZVAL(redis, 1, 0);
 }
@@ -258,7 +274,7 @@ zend_function_entry tf_methods[] = {
     PHP_ME(tf, setError, tf_setError_arginfo, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(tf, setErrorMsg, tf_setErrorMsg_arginfo, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(tf, getDB, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(tf, getRedis, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
+    PHP_ME(tf, getRedis, tf_getRedis_arginfo, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(tf, getSession, NULL, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(tf, logInfo, tf_log_common_arginfo, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(tf, logWarn, tf_log_common_arginfo, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
