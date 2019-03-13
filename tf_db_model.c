@@ -214,8 +214,14 @@ zval * tf_db_model_consturctor(zval *row TSRMLS_DC) {
             convert_to_long(*ppzval);
         } else if (Z_LVAL_P(field_type) == TF_MODEL_VAR_TYPE_DOUBLE) {
             convert_to_double(*ppzval);
+        } else if (Z_LVAL_P(field_type) == TF_MODEL_VAR_TYPE_STRING) {
+            convert_to_string(*ppzval);
         } else if (Z_LVAL_P(field_type) == TF_MODEL_VAR_TYPE_BOOL) {
             convert_to_boolean(*ppzval);
+        } else if (Z_LVAL_P(field_type) == TF_MODEL_VAR_TYPE_ARRAY) {
+            convert_to_array(*ppzval);
+        } else {
+            continue;
         }
 
         if (hash_key_type == HASH_KEY_IS_LONG) {

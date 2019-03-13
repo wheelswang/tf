@@ -132,6 +132,13 @@ zval * tf_model_constructor(zval *model TSRMLS_DC) {
                 MAKE_STD_ZVAL(default_value);
                 ZVAL_BOOL(default_value, 0);
             }
+        } else if (Z_LVAL_P(type) == TF_MODEL_VAR_TYPE_ARRAY) {
+            if (has_default) {
+                convert_to_array(default_value);
+            } else {
+                MAKE_STD_ZVAL(default_value);
+                array_init(default_value);
+            }
         } else {
             php_error_docref(NULL TSRMLS_CC, E_WARNING, "model field type error");
             continue;
@@ -187,6 +194,8 @@ void tf_model_set(zval *model, char *name, int name_len, zval *value TSRMLS_DC) 
         convert_to_string(value);
     } else if (Z_LVAL_P(var_type) == TF_MODEL_VAR_TYPE_BOOL) {
         convert_to_boolean(value);
+    } else if (Z_LVAL_P(var_type) == TF_MODEL_VAR_TYPE_ARRAY) {
+        convert_to_array(value);
     } else {
         return;
     }
@@ -334,17 +343,18 @@ PHP_METHOD(tf_model, fromArray) {
         char *str_index = NULL;
         int str_index_len;
         ulong num_index;
-        zend_bool need_free_index = TRUE;
+        zend_bool need_free_index = FALSE;
         if (zend_hash_get_current_key_ex(Z_ARRVAL_P(array), &str_index, &str_index_len, &num_index, 0, NULL) != HASH_KEY_IS_STRING) {
             spprintf(&str_index, 0, "%d", num_index);
             str_index_len = strlen(str_index) + 1;
-            need_free_index = FALSE;
+            need_free_index = TRUE;
         } else if (camel_case) {
             char *no_camel_key;
             int no_camel_key_len;
             tf_model_get_no_camel_str(str_index, &no_camel_key, &no_camel_key_len);
             str_index = no_camel_key;
             str_index_len = no_camel_key_len + 1;
+            need_free_index = TRUE;
         }
 
         tf_model_set(model, str_index, str_index_len - 1, *ppzval TSRMLS_CC);
@@ -408,6 +418,7 @@ ZEND_MINIT_FUNCTION(tf_model) {
     zend_declare_class_constant_long(tf_model_ce, ZEND_STRL(TF_MODEL_PROPERTY_NAME_VAR_TYPE_DOUBLE), TF_MODEL_VAR_TYPE_DOUBLE TSRMLS_CC);
     zend_declare_class_constant_long(tf_model_ce, ZEND_STRL(TF_MODEL_PROPERTY_NAME_VAR_TYPE_STRING), TF_MODEL_VAR_TYPE_STRING TSRMLS_CC);
     zend_declare_class_constant_long(tf_model_ce, ZEND_STRL(TF_MODEL_PROPERTY_NAME_VAR_TYPE_BOOL), TF_MODEL_VAR_TYPE_BOOL TSRMLS_CC);
+    zend_declare_class_constant_long(tf_model_ce, ZEND_STRL(TF_MODEL_PROPERTY_NAME_VAR_TYPE_ARRAY), TF_MODEL_VAR_TYPE_ARRAY TSRMLS_CC);
     zend_declare_class_constant_long(tf_model_ce, ZEND_STRL(TF_MODEL_PROPERTY_NAME_DEFAULT_VALUE_CURRENT_TIMESTAMP), TF_MODEL_DEFAULT_VALUE_CURRENT_TIMESTAMP TSRMLS_CC);
 
     return SUCCESS;
