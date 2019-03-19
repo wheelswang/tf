@@ -78,7 +78,19 @@ void * tf_web_application_run_error_controller(zval *web_application, int error_
     if (view_ext) {
         convert_to_string(view_ext);
     }
-    tf_controller_constructor(controller, view_ext TSRMLS_CC);
+    zval *err_code_key = tf_config_get(config, ZEND_STRL("controller.ajax.code_key") TSRMLS_CC);
+    if (err_code_key) {
+        convert_to_string(err_code_key);
+    }
+    zval *err_msg_key = tf_config_get(config, ZEND_STRL("controller.ajax.msg_key") TSRMLS_CC);
+    if (err_msg_key) {
+        convert_to_string(err_msg_key);
+    }
+    zval *data_key = tf_config_get(config, ZEND_STRL("controller.ajax.data_key") TSRMLS_CC);
+    if (data_key) {
+        convert_to_string(data_key);
+    }
+    tf_controller_constructor(controller, view_ext, err_code_key, err_msg_key, data_key TSRMLS_CC);
     tf_controller_run_error(controller, error_type, error_msg, error_file, error_lineno TSRMLS_CC);
     zval_ptr_dtor(&controller);
 }
@@ -218,10 +230,22 @@ PHP_METHOD(tf_web_application, run) {
     if (view_ext) {
         convert_to_string(view_ext);
     }
+    zval *err_code_key = tf_config_get(config, ZEND_STRL("controller.ajax.code_key") TSRMLS_CC);
+    if (err_code_key) {
+        convert_to_string(err_code_key);
+    }
+    zval *err_msg_key = tf_config_get(config, ZEND_STRL("controller.ajax.msg_key") TSRMLS_CC);
+    if (err_msg_key) {
+        convert_to_string(err_msg_key);
+    }
+    zval *data_key = tf_config_get(config, ZEND_STRL("controller.ajax.data_key") TSRMLS_CC);
+    if (data_key) {
+        convert_to_string(data_key);
+    }
     zval *controller;
     MAKE_STD_ZVAL(controller);
     object_init_ex(controller, controller_ce);
-    tf_controller_constructor(controller, view_ext TSRMLS_CC);
+    tf_controller_constructor(controller, view_ext, err_code_key, err_msg_key, data_key TSRMLS_CC);
     zval *action = tf_router_get_action(router TSRMLS_CC);
     tf_controller_run_action(controller, action TSRMLS_CC);
     zval_ptr_dtor(&controller);

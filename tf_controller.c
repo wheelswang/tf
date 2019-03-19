@@ -66,9 +66,18 @@ ZEND_BEGIN_ARG_INFO_EX(tf_controller_error_arginfo, 0, 0, 1)
     ZEND_ARG_INFO(0, error)
 ZEND_END_ARG_INFO()
 
-void tf_controller_constructor(zval *controller, zval *view_ext TSRMLS_DC) {
+void tf_controller_constructor(zval *controller, zval *view_ext, zval *err_code_key, zval *err_msg_key, zval *data_key TSRMLS_DC) {
     if (view_ext) {
         zend_update_property(tf_controller_ce, controller, ZEND_STRL(TF_CONTROLLER_PROPERTY_NAME_VIEW_EXT), view_ext TSRMLS_CC);
+    }
+    if (err_code_key) {
+        zend_update_property(tf_controller_ce, controller, ZEND_STRL(TF_CONTROLLER_PROPERTY_NAME_AJAX_ERR_CODE_KEY), err_code_key TSRMLS_CC);
+    }
+    if (err_msg_key) {
+        zend_update_property(tf_controller_ce, controller, ZEND_STRL(TF_CONTROLLER_PROPERTY_NAME_AJAX_ERR_MSG_KEY), err_msg_key TSRMLS_CC);
+    }
+    if (data_key) {
+        zend_update_property(tf_controller_ce, controller, ZEND_STRL(TF_CONTROLLER_PROPERTY_NAME_AJAX_DATA_KEY), data_key TSRMLS_CC);
     }
 }
 
@@ -280,18 +289,21 @@ void tf_controller_display(zval *controller, char *tpl_name, zval *params TSRMLS
     tf_view_display(view, tpl_name ? tpl_name : Z_STRVAL_P(action), params TSRMLS_CC);
 }
 
-void tf_controller_ajax_out(int error_code, char *error_msg, int error_msg_len, zval *data) {
+void tf_controller_ajax_out(zval *controller, int error_code, char *error_msg, int error_msg_len, zval *data TSRMLS_DC) {
+    zval *err_code_key = zend_read_property(tf_controller_ce, controller, ZEND_STRL(TF_CONTROLLER_PROPERTY_NAME_AJAX_ERR_CODE_KEY), 1 TSRMLS_CC);
+    zval *err_msg_key = zend_read_property(tf_controller_ce, controller, ZEND_STRL(TF_CONTROLLER_PROPERTY_NAME_AJAX_ERR_MSG_KEY), 1 TSRMLS_CC);
+    zval *data_key = zend_read_property(tf_controller_ce, controller, ZEND_STRL(TF_CONTROLLER_PROPERTY_NAME_AJAX_DATA_KEY), 1 TSRMLS_CC);
     zval *arr;
     MAKE_STD_ZVAL(arr);
     array_init(arr);
-    add_assoc_long(arr, "errCode", error_code);
-    add_assoc_stringl(arr, "errMsg", error_msg, error_msg_len, 1);
+    add_assoc_long(arr, Z_STRVAL_P(err_code_key), error_code);
+    add_assoc_stringl(arr, Z_STRVAL_P(err_msg_key), error_msg, error_msg_len, 1);
     if (!data) {
         MAKE_STD_ZVAL(data);
         object_init(data);
-        add_assoc_zval(arr, "data", data);
+        add_assoc_zval(arr, Z_STRVAL_P(data_key), data);
     } else {
-        add_assoc_zval(arr, "data", data);
+        add_assoc_zval(arr, Z_STRVAL_P(data_key), data);
         Z_ADDREF_P(data);
     }
 
@@ -370,7 +382,7 @@ PHP_METHOD(tf_controller, ajaxError) {
         error_msg_len = Z_STRLEN_P(error_msg_zval);
     }
 
-    tf_controller_ajax_out(error_code, error_msg, error_msg_len, NULL);
+    tf_controller_ajax_out(getThis(), error_code, error_msg, error_msg_len, NULL TSRMLS_CC);
 
     // https://grokbase.com/t/php/php-internals/04727wymqn/zend-api-correct-way-to-terminate-entire-request-from-within-function
     zend_bailout();
@@ -382,7 +394,7 @@ PHP_METHOD(tf_controller, ajaxSuccess) {
         return;
     }
 
-    tf_controller_ajax_out(0, "", 0, data);
+    tf_controller_ajax_out(getThis(), 0, "", 0, data TSRMLS_CC);
 
     zend_bailout();
 }
@@ -428,7 +440,10 @@ ZEND_MINIT_FUNCTION(tf_controller) {
     zend_declare_property_null(tf_controller_ce, ZEND_STRL(TF_CONTROLLER_PROPERTY_NAME_VIEW), ZEND_ACC_PRIVATE TSRMLS_CC);
     zend_declare_property_null(tf_controller_ce, ZEND_STRL(TF_CONTROLLER_PROPERTY_NAME_ROUTER), ZEND_ACC_PRIVATE TSRMLS_CC);
     zend_declare_property_string(tf_controller_ce, ZEND_STRL(TF_CONTROLLER_PROPERTY_NAME_VIEW_EXT), "php", ZEND_ACC_PRIVATE TSRMLS_CC);
-    zend_declare_property_null(tf_controller_ce, ZEND_STRL(TF_CONTROLLER_PROPERTY_NAME_ACTION), ZEND_ACC_PRIVATE TSRMLS_DC);
+    zend_declare_property_null(tf_controller_ce, ZEND_STRL(TF_CONTROLLER_PROPERTY_NAME_ACTION), ZEND_ACC_PRIVATE TSRMLS_CC);
+    zend_declare_property_string(tf_controller_ce, ZEND_STRL(TF_CONTROLLER_PROPERTY_NAME_AJAX_ERR_CODE_KEY), "errCode", ZEND_ACC_PRIVATE TSRMLS_CC);
+    zend_declare_property_string(tf_controller_ce, ZEND_STRL(TF_CONTROLLER_PROPERTY_NAME_AJAX_ERR_MSG_KEY), "errMsg", ZEND_ACC_PRIVATE TSRMLS_CC);
+    zend_declare_property_string(tf_controller_ce, ZEND_STRL(TF_CONTROLLER_PROPERTY_NAME_AJAX_DATA_KEY), "data", ZEND_ACC_PRIVATE TSRMLS_CC);
 
     zend_class_entry **reflection_method_tmp_ce;
     if (zend_hash_find(CG(class_table), ZEND_STRS("reflectionmethod"), (void **)&reflection_method_tmp_ce) != SUCCESS) {

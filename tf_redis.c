@@ -314,20 +314,9 @@ PHP_METHOD(tf_redis, __call) {
     RETURN_ZVAL(ret, 0, 1);
 }
 
-PHP_METHOD(tf_redis, getClient) {
-    tf_redis_connect(getThis(), 0 TSRMLS_CC);
-    zval *client = zend_read_property(tf_redis_ce, getThis(), ZEND_STRL(TF_REDIS_PROPERTY_NAME_CLIENT), 1 TSRMLS_CC);
-    if (client == NULL) {
-        RETURN_NULL();
-    }
-
-    RETURN_ZVAL(client, 1, 0);
-}
-
 zend_function_entry tf_redis_methods[] = {
     PHP_ME(tf_redis, __construct, tf_redis___construct_arginfo, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
     PHP_ME(tf_redis, __call, tf_redis___call_arginfo, ZEND_ACC_PUBLIC)
-    PHP_ME(tf_redis, getClient, NULL, ZEND_ACC_PUBLIC)
     {NULL, NULL, NULL}
 };
 

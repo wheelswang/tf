@@ -22,8 +22,11 @@
 #define TF_CONTROLLER_PROPERTY_NAME_VIEW "_view"
 #define TF_CONTROLLER_PROPERTY_NAME_VIEW_EXT "_view_ext"
 #define TF_CONTROLLER_PROPERTY_NAME_ACTION "_action"
+#define TF_CONTROLLER_PROPERTY_NAME_AJAX_ERR_CODE_KEY "_err_code_key"
+#define TF_CONTROLLER_PROPERTY_NAME_AJAX_ERR_MSG_KEY "_err_msg_key"
+#define TF_CONTROLLER_PROPERTY_NAME_AJAX_DATA_KEY "_data_key"
 
-void tf_controller_constructor(zval *controller, zval *view_ext TSRMLS_DC);
+void tf_controller_constructor(zval *controller, zval *view_ext, zval *err_code_key, zval *err_msg_key, zval *data_key TSRMLS_DC);
 
 void tf_controller_run_action(zval *controller, zval *action TSRMLS_DC);
 
