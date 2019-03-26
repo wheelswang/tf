@@ -79,7 +79,9 @@ class DBModelGenerator
 
 namespace application\common\model;
 
-class $classname extends \TF\DBModel
+use TF;
+
+class $classname extends TF\DBModel
 {
     protected static \$_table = '$table';
 
