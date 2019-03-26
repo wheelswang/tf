@@ -200,25 +200,25 @@ zval * tf_db_model_consturctor(zval *row TSRMLS_DC) {
             continue;
         }
 
-        zval *field_type;
+        zval **field_type;
         if (Z_TYPE_PP(field_define) == IS_ARRAY) {
             if (zend_hash_index_find(Z_ARRVAL_PP(field_define), 0, (void **)&field_type) != SUCCESS) {
                 continue;
             }
         } else if (Z_TYPE_PP(field_define) == IS_LONG) {
-            field_type = *field_define;
+            field_type = field_define;
         } else {
             continue;
         }
-        if (Z_LVAL_P(field_type) == TF_MODEL_VAR_TYPE_INT) {
+        if (Z_LVAL_PP(field_type) == TF_MODEL_VAR_TYPE_INT) {
             convert_to_long(*ppzval);
-        } else if (Z_LVAL_P(field_type) == TF_MODEL_VAR_TYPE_DOUBLE) {
+        } else if (Z_LVAL_PP(field_type) == TF_MODEL_VAR_TYPE_DOUBLE) {
             convert_to_double(*ppzval);
-        } else if (Z_LVAL_P(field_type) == TF_MODEL_VAR_TYPE_STRING) {
+        } else if (Z_LVAL_PP(field_type) == TF_MODEL_VAR_TYPE_STRING) {
             convert_to_string(*ppzval);
-        } else if (Z_LVAL_P(field_type) == TF_MODEL_VAR_TYPE_BOOL) {
+        } else if (Z_LVAL_PP(field_type) == TF_MODEL_VAR_TYPE_BOOL) {
             convert_to_boolean(*ppzval);
-        } else if (Z_LVAL_P(field_type) == TF_MODEL_VAR_TYPE_ARRAY) {
+        } else if (Z_LVAL_PP(field_type) == TF_MODEL_VAR_TYPE_ARRAY) {
             convert_to_array(*ppzval);
         } else {
             continue;
