@@ -49,6 +49,9 @@ ZEND_BEGIN_ARG_INFO_EX(tf_session_setSessionId_arginfo, 0, 0, 1)
     ZEND_ARG_INFO(0, session_id)
 ZEND_END_ARG_INFO()
 
+#define IF_SESSION_VARS() \
+    if (PS(http_session_vars) && PS(http_session_vars)->type == IS_ARRAY)
+
 zval * tf_session_constructor(zval *session, zval *config TSRMLS_DC) {
     if (!session) {
         MAKE_STD_ZVAL(session);
@@ -168,6 +171,63 @@ static int php_session_destroy(TSRMLS_D) /* {{{ */
     return retval;
 }
 
+static char * php_session_encode(int *newlen TSRMLS_DC) /* {{{ */
+{
+    char *ret = NULL;
+
+    IF_SESSION_VARS() {
+        if (!PS(serializer)) {
+            php_error_docref(NULL TSRMLS_CC, E_WARNING, "Unknown session.serialize_handler. Failed to encode session object");
+            ret = NULL;
+        } else if (PS(serializer)->encode(&ret, newlen TSRMLS_CC) == FAILURE) {
+            ret = NULL;
+        }
+    } else {
+        php_error_docref(NULL TSRMLS_CC, E_WARNING, "Cannot encode non-existent session");
+    }
+    return ret;
+}
+
+static void php_session_save_current_state(TSRMLS_D) /* {{{ */
+{
+    int ret = FAILURE;
+
+    IF_SESSION_VARS() {
+        if (PS(mod_data) || PS(mod_user_implemented)) {
+            char *val;
+            int vallen;
+
+            val = php_session_encode(&vallen TSRMLS_CC);
+            if (val) {
+                ret = PS(mod)->s_write(&PS(mod_data), PS(id), val, vallen TSRMLS_CC);
+                efree(val);
+            } else {
+                ret = PS(mod)->s_write(&PS(mod_data), PS(id), "", 0 TSRMLS_CC);
+            }
+        }
+
+        if (ret == FAILURE) {
+            php_error_docref(NULL TSRMLS_CC, E_WARNING, "Failed to write session data (%s). Please "
+                    "verify that the current setting of session.save_path "
+                    "is correct (%s)",
+                    PS(mod)->s_name,
+                    PS(save_path));
+        }
+    }
+
+    if (PS(mod_data) || PS(mod_user_implemented)) {
+        PS(mod)->s_close(&PS(mod_data) TSRMLS_CC);
+    }
+}
+
+static void php_session_flush(TSRMLS_D) /* {{{ */
+{
+    if (PS(session_status) == php_session_active) {
+        PS(session_status) = php_session_none;
+        php_session_save_current_state(TSRMLS_C);
+    }
+}
+
 PHP_METHOD(tf_session, __construct) {
     zval *config;
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "a", &config) != SUCCESS) {
@@ -243,6 +303,28 @@ PHP_METHOD(tf_session, setSessionId) {
 PHP_METHOD(tf_session, destroy) {
     tf_session_start(getThis() TSRMLS_CC);
     php_session_destroy(TSRMLS_CC);
+
+    zval *new_started;
+    MAKE_STD_ZVAL(new_started);
+    ZVAL_FALSE(new_started);
+    zend_update_property(tf_session_ce, getThis(), ZEND_STRL(TF_SESSION_PROPERTY_NAME_STARTED), new_started TSRMLS_CC);
+    zval_ptr_dtor(&new_started);
+}
+
+PHP_METHOD(tf_session, isStarted) {
+    zval *started = zend_read_property(tf_session_ce, getThis(), ZEND_STRL(TF_SESSION_PROPERTY_NAME_STARTED), 1 TSRMLS_CC);
+
+    RETURN_ZVAL(started, 0, 0);
+}
+
+PHP_METHOD(tf_session, close) {
+    php_session_flush(TSRMLS_CC);
+
+    zval *new_started;
+    MAKE_STD_ZVAL(new_started);
+    ZVAL_FALSE(new_started);
+    zend_update_property(tf_session_ce, getThis(), ZEND_STRL(TF_SESSION_PROPERTY_NAME_STARTED), new_started TSRMLS_CC);
+    zval_ptr_dtor(&new_started);
 }
 
 zend_function_entry tf_session_methods[] = {
@@ -254,6 +336,8 @@ zend_function_entry tf_session_methods[] = {
     PHP_ME(tf_session, getSessionId, NULL, ZEND_ACC_PUBLIC)
     PHP_ME(tf_session, setSessionId, tf_session_setSessionId_arginfo, ZEND_ACC_PUBLIC)
     PHP_ME(tf_session, destroy, NULL, ZEND_ACC_PUBLIC)
+    PHP_ME(tf_session, isStarted, NULL, ZEND_ACC_PUBLIC)
+    PHP_ME(tf_session, close, NULL, ZEND_ACC_PUBLIC)
     { NULL, NULL, NULL }
 };
 
