@@ -266,6 +266,9 @@ zval * tf_redis_exec(zval *redis, zval *method, zval *args TSRMLS_DC) {
                 }
                 
                 zval_ptr_dtor(&ret);
+
+                client = zend_read_property(tf_redis_ce, redis, ZEND_STRL(TF_REDIS_PROPERTY_NAME_CLIENT), 1 TSRMLS_CC);
+
                 continue;
             }
 

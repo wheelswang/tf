@@ -638,7 +638,6 @@ zval * tf_db_exec_sql(zval *db, char *sql, int sql_len, zval *params TSRMLS_DC) 
 
     char *pdo_property = db_type == 0 ? TF_DB_PROPERTY_NAME_PDO : TF_DB_PROPERTY_NAME_SLAVE_PDO;
     zval *pdo = zend_read_property(tf_db_ce, db, pdo_property, strlen(pdo_property), 1 TSRMLS_CC);
-
     for (i = 0; i < 2; i++) {
         zval *method_prepare, *statement, *sql_zval;
         MAKE_STD_ZVAL(method_prepare);
@@ -668,14 +667,16 @@ zval * tf_db_exec_sql(zval *db, char *sql, int sql_len, zval *params TSRMLS_DC) 
 
         if (EG(exception)) {
             ZVAL_FALSE(ret);
-            zval *error_code = zend_read_property(exception_ce, EG(exception), ZEND_STRL("code"), 1 TSRMLS_CC);
-            if ((Z_LVAL_P(error_code) == 2006 || Z_LVAL_P(error_code) == 2013) && i == 0) {
+            if (i == 0) {
                 zend_clear_exception(TSRMLS_CC);
                 if (!tf_db_connect(db, db_type, 1 TSRMLS_CC)) {
                     return ret;
                 }
                 
                 zval_ptr_dtor(&ret);
+
+                pdo = zend_read_property(tf_db_ce, db, pdo_property, strlen(pdo_property), 1 TSRMLS_CC);
+
                 continue;
             }
 
@@ -726,7 +727,8 @@ zval * tf_db_query(zval *db, char *table, zval *condition, zval *params, zval *f
     zval_ptr_dtor(&sql_data);
     efree(sql_str);
 
-    if (Z_TYPE_P(ret) == IS_BOOL) {
+    if (Z_TYPE_P(ret) == IS_BOOL || Z_TYPE_P(ret) == IS_NULL) {
+        convert_to_boolean(ret);
         return ret;
     }
 
