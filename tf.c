@@ -124,7 +124,7 @@ PHP_METHOD(tf, getConfig) {
 
 PHP_METHOD(tf, getErrorCode) {
     zval *error = tf_get_error(TSRMLS_CC);
-    zval *error_code = tf_error_get_error_msg(error TSRMLS_CC);
+    zval *error_code = tf_error_get_error_code(error TSRMLS_CC);
     RETURN_ZVAL(error_code, 1, 0);
 }
 
@@ -136,7 +136,7 @@ PHP_METHOD(tf, getErrorMsg) {
 
 PHP_METHOD(tf, getErrorDetail) {
     zval *error = tf_get_error(TSRMLS_CC);
-    zval *error_detail = tf_error_get_error_msg(error TSRMLS_CC);
+    zval *error_detail = tf_error_get_error_detail(error TSRMLS_CC);
     RETURN_ZVAL(error_detail, 1, 0);
 }
 
