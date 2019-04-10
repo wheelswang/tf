@@ -272,6 +272,18 @@ zend_bool tf_db_connect(zval *db, int db_type, zend_bool reconnect TSRMLS_DC) {
         return FALSE;
     }
 
+    // 重连时恢复事务 避免后面rollback时异常
+    zval *transaction_level = zend_read_property(tf_db_ce, db, ZEND_STRL(TF_DB_PROPERTY_NAME_TRANSACTION_LEVEL), 1 TSRMLS_CC);
+    if (Z_LVAL_P(transaction_level) > 0) {
+        zval *method, *ret;
+        MAKE_STD_ZVAL(method);
+        ZVAL_STRING(method, "beginTransaction", 1);
+        MAKE_STD_ZVAL(ret);
+        call_user_function(&pdo_ce->function_table, &pdo, method, ret, 0, NULL TSRMLS_CC);
+        zval_ptr_dtor(&method);
+        zval_ptr_dtor(&ret);
+    }
+
     return TRUE;
 }
 
