@@ -679,16 +679,35 @@ zval * tf_db_exec_sql(zval *db, char *sql, int sql_len, zval *params TSRMLS_DC) 
 
         if (EG(exception)) {
             ZVAL_FALSE(ret);
-            if (i == 0) {
+            zend_bool reconnected = 0;
+            do {
+                if (i > 0) {
+                    break;
+                }
+
+                zval *errorInfo = zend_read_property(exception_ce, EG(exception), ZEND_STRL("errorInfo"), 1 TSRMLS_CC);
+                zval **errorCode;
+                if (zend_hash_index_find(Z_ARRVAL_P(errorInfo), 1, (void **)&errorCode) == FAILURE) {
+                    break;
+                }
+
+                if (Z_LVAL_PP(errorCode) != 2006 && Z_LVAL_PP(errorCode) != 2013) {
+                    break;
+                }
+
+                php_error_docref(NULL TSRMLS_CC, E_WARNING, "mysql error:%d, try to reconnect", Z_LVAL_PP(errorCode));
+
                 zend_clear_exception(TSRMLS_CC);
                 if (!tf_db_connect(db, db_type, 1 TSRMLS_CC)) {
                     return ret;
                 }
                 
                 zval_ptr_dtor(&ret);
-
                 pdo = zend_read_property(tf_db_ce, db, pdo_property, strlen(pdo_property), 1 TSRMLS_CC);
+                reconnected = 1;
+            } while (0);
 
+            if (reconnected) {
                 continue;
             }
 
