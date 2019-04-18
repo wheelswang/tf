@@ -442,6 +442,7 @@ zval * tf_db_build_update_sql_data(char *table, zval *data, zval *condition, zva
         }
 
         zend_hash_get_current_data(Z_ARRVAL_P(data), (void **)&ppzval);
+        SEPARATE_ZVAL(ppzval);
         convert_to_string(*ppzval);
         add_assoc_zval(new_params, pdo_key, *ppzval);
         Z_ADDREF_PP(ppzval);
