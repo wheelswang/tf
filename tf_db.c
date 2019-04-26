@@ -272,18 +272,6 @@ zend_bool tf_db_connect(zval *db, int db_type, zend_bool reconnect TSRMLS_DC) {
         return FALSE;
     }
 
-    // 重连时恢复事务 避免后面rollback时异常
-    zval *transaction_level = zend_read_property(tf_db_ce, db, ZEND_STRL(TF_DB_PROPERTY_NAME_TRANSACTION_LEVEL), 1 TSRMLS_CC);
-    if (Z_LVAL_P(transaction_level) > 0) {
-        zval *method, *ret;
-        MAKE_STD_ZVAL(method);
-        ZVAL_STRING(method, "beginTransaction", 1);
-        MAKE_STD_ZVAL(ret);
-        call_user_function(&pdo_ce->function_table, &pdo, method, ret, 0, NULL TSRMLS_CC);
-        zval_ptr_dtor(&method);
-        zval_ptr_dtor(&ret);
-    }
-
     return TRUE;
 }
 
@@ -1070,9 +1058,42 @@ PHP_METHOD(tf_db, begin) {
 
     zval *method, *ret;
     MAKE_STD_ZVAL(method);
-    ZVAL_STRING(method, "beginTransaction", 1);
     MAKE_STD_ZVAL(ret);
-    call_user_function(&pdo_ce->function_table, &pdo, method, ret, 0, NULL TSRMLS_CC);
+    ZVAL_STRING(method, "beginTransaction", 1);
+    int i = 0;
+    for (; i < 2; i++) {
+        call_user_function(&pdo_ce->function_table, &pdo, method, ret, 0, NULL TSRMLS_CC);
+        if (!EG(exception)) {
+            break;
+        }
+
+        if (i > 0) {
+            ZVAL_FALSE(ret);
+            break;
+        }
+
+        zval *errorInfo = zend_read_property(exception_ce, EG(exception), ZEND_STRL("errorInfo"), 1 TSRMLS_CC);
+        zval **errorCode;
+        if (zend_hash_index_find(Z_ARRVAL_P(errorInfo), 1, (void **)&errorCode) == FAILURE) {
+            ZVAL_FALSE(ret);
+            break;
+        }
+
+        if (Z_LVAL_PP(errorCode) != 2006 && Z_LVAL_PP(errorCode) != 2013) {
+            ZVAL_FALSE(ret);
+            break;
+        }
+
+        php_error_docref(NULL TSRMLS_CC, E_WARNING, "mysql error:%d, try to reconnect", Z_LVAL_PP(errorCode));
+
+        zend_clear_exception(TSRMLS_CC);
+        if (!tf_db_connect(getThis(), 0, 1 TSRMLS_CC)) {
+            ZVAL_FALSE(ret);
+            break;
+        }
+        pdo = zend_read_property(tf_db_ce, getThis(), ZEND_STRL(TF_DB_PROPERTY_NAME_PDO), 1 TSRMLS_CC);
+    }
+        
     zval_ptr_dtor(&method);
 
     RETURN_ZVAL(ret, 0, 1);
@@ -1101,6 +1122,13 @@ PHP_METHOD(tf_db, commit) {
     call_user_function(&pdo_ce->function_table, &pdo, method, ret, 0, NULL TSRMLS_CC);
     zval_ptr_dtor(&method);
 
+    if (EG(exception)) {
+        zval *message = zend_read_property(exception_ce, EG(exception), ZEND_STRL("message"), 1 TSRMLS_CC);
+        tf_set_error_msg(Z_STRVAL_P(message), Z_STRLEN_P(message), NULL, 0 TSRMLS_CC);
+        ZVAL_FALSE(ret);
+        zend_clear_exception(TSRMLS_CC);
+    }
+
     RETURN_ZVAL(ret, 0, 1);
 }
 
@@ -1126,6 +1154,13 @@ PHP_METHOD(tf_db, rollback) {
     MAKE_STD_ZVAL(ret);
     call_user_function(&pdo_ce->function_table, &pdo, method, ret, 0, NULL TSRMLS_CC);
     zval_ptr_dtor(&method);
+
+    if (EG(exception)) {
+        zval *message = zend_read_property(exception_ce, EG(exception), ZEND_STRL("message"), 1 TSRMLS_CC);
+        tf_set_error_msg(Z_STRVAL_P(message), Z_STRLEN_P(message), NULL, 0 TSRMLS_CC);
+        ZVAL_FALSE(ret);
+        zend_clear_exception(TSRMLS_CC);
+    }
 
     RETURN_ZVAL(ret, 0, 1);
 }

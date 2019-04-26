@@ -260,6 +260,8 @@ zval * tf_redis_exec(zval *redis, zval *method, zval *args TSRMLS_DC) {
         if (EG(exception)) {
             ZVAL_FALSE(ret);
             if (i == 0) {
+                php_error_docref(NULL TSRMLS_CC, E_WARNING, "redis exception try to reconnect");
+
                 zend_clear_exception(TSRMLS_CC);
                 if (!tf_redis_connect(redis, 1 TSRMLS_CC)) {
                     return ret;
