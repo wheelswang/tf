@@ -1172,6 +1172,7 @@ PHP_METHOD(tf_db, getTransactionLevel) {
 
 PHP_METHOD(tf_db, close) {
     zend_update_property_null(tf_db_ce, getThis(), ZEND_STRL(TF_DB_PROPERTY_NAME_PDO) TSRMLS_CC);
+    zend_update_property_null(tf_db_ce, getThis(), ZEND_STRL(TF_DB_PROPERTY_NAME_SLAVE_PDO) TSRMLS_CC);
 }
 
 PHP_METHOD(tf_db, setSlaveEnabled) {

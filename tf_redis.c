@@ -259,8 +259,9 @@ zval * tf_redis_exec(zval *redis, zval *method, zval *args TSRMLS_DC) {
 
         if (EG(exception)) {
             ZVAL_FALSE(ret);
+            zval *error_msg = zend_read_property(exception_ce, EG(exception), ZEND_STRL("message"), 1 TSRMLS_CC);
             if (i == 0) {
-                php_error_docref(NULL TSRMLS_CC, E_WARNING, "redis exception try to reconnect");
+                php_error_docref(NULL TSRMLS_CC, E_WARNING, "redis exception: %s, try to reconnect", Z_STRVAL_P(error_msg));
 
                 zend_clear_exception(TSRMLS_CC);
                 if (!tf_redis_connect(redis, 1 TSRMLS_CC)) {
@@ -268,13 +269,11 @@ zval * tf_redis_exec(zval *redis, zval *method, zval *args TSRMLS_DC) {
                 }
                 
                 zval_ptr_dtor(&ret);
-
                 client = zend_read_property(tf_redis_ce, redis, ZEND_STRL(TF_REDIS_PROPERTY_NAME_CLIENT), 1 TSRMLS_CC);
 
                 continue;
             }
 
-            zval *error_msg = zend_read_property(exception_ce, EG(exception), ZEND_STRL("message"), 1 TSRMLS_CC);
             tf_set_error_simple_msg(Z_STRVAL_P(error_msg), Z_STRLEN_P(error_msg) TSRMLS_CC);
             zend_clear_exception(TSRMLS_CC);
 
@@ -308,6 +307,10 @@ PHP_METHOD(tf_redis, __construct) {
     tf_redis_constructor(getThis(), server, password, index, serialize, prefix TSRMLS_CC);
 }
 
+PHP_METHOD(tf_redis, close) {
+    zend_update_property_null(tf_redis_ce, getThis(), ZEND_STRL(TF_REDIS_PROPERTY_NAME_CLIENT) TSRMLS_CC);
+}
+
 PHP_METHOD(tf_redis, __call) {
     zval *method, *args;
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "zz", &method, &args) != SUCCESS) {
@@ -322,6 +325,7 @@ PHP_METHOD(tf_redis, __call) {
 zend_function_entry tf_redis_methods[] = {
     PHP_ME(tf_redis, __construct, tf_redis___construct_arginfo, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
     PHP_ME(tf_redis, __call, tf_redis___call_arginfo, ZEND_ACC_PUBLIC)
+    PHP_ME(tf_redis, close, NULL, ZEND_ACC_PUBLIC)
     {NULL, NULL, NULL}
 };
 
