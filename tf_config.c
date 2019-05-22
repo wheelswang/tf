@@ -18,6 +18,8 @@
 #include "config.h"
 #endif
 
+#include <sys/stat.h>
+#include <fcntl.h>
 #include "php.h"
 #include "standard/php_filestat.h"
 #include "Zend/zend_interfaces.h"
@@ -280,6 +282,16 @@ zval * tf_config_constructor(zval *config, char *file, int file_len, char *secti
     char *cache_key;
     spprintf(&cache_key, 0, "%s|%s", file, section ? section : "");
 
+    int fd = open(file, O_RDONLY);
+    if (fd < 0) {
+        close(fd);
+        php_error_docref(NULL TSRMLS_CC, E_ERROR, "config file open error");
+    }
+
+    struct stat fstat_buf;
+    fstat(fd, &fstat_buf);
+    int ctime = fstat_buf.st_ctime;
+
     do {
         if (!TF_G(configs_cache)) {
             break;
@@ -293,9 +305,7 @@ zval * tf_config_constructor(zval *config, char *file, int file_len, char *secti
         if (zend_symtable_find(Z_ARRVAL_PP(config_cache), "ctime", 6, (void **)&cache_ctime) == FAILURE) {
             break;
         }
-        zval ctime;
-        php_stat(file, file_len, 7 /* FS_CTIME */ , &ctime TSRMLS_CC);
-        if (Z_LVAL(ctime) > Z_LVAL_PP(cache_ctime)) {
+        if (ctime > Z_LVAL_PP(cache_ctime)) {
             break;
         }
 
@@ -322,6 +332,9 @@ zval * tf_config_constructor(zval *config, char *file, int file_len, char *secti
     TF_G(config_parsing_flag) = TF_CONFIG_INI_PARSING_START;
 
     if (section && section_len) {
+        if (TF_G(config_section)) {
+            efree(TF_G(config_section));
+        }
         TF_G(config_section) = estrndup(section, section_len);
     }
     
@@ -362,13 +375,11 @@ zval * tf_config_constructor(zval *config, char *file, int file_len, char *secti
         zend_hash_init(TF_G(configs_cache), 0, NULL, (dtor_func_t)tf_common_persistent_zval_dtor, 1);
     }
 
-    zval *config_cache, *ctime;
+    zval *config_cache;
     MAKE_STD_ZVAL(config_cache);
     array_init(config_cache);
-    MAKE_STD_ZVAL(ctime);
 
-    php_stat(file, file_len, 7 /* FS_CTIME */ , ctime TSRMLS_CC);
-    add_assoc_zval(config_cache, "ctime", ctime);
+    add_assoc_long(config_cache, "ctime", ctime);
     add_assoc_zval(config_cache, "data", config_data);
     Z_ADDREF_P(config_data);
 

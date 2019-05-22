@@ -52,6 +52,8 @@ zval * tf_application_constructor(zval *application, char *config_file, int conf
     zval *config = tf_config_constructor(NULL, config_file, config_file_len, config_section, config_section_len TSRMLS_CC);
     zend_update_property(tf_application_ce, application, ZEND_STRL(TF_APPLICATION_PROPERTY_NAME_CONFIG), config TSRMLS_CC);
     zval_ptr_dtor(&config);
+    zend_update_property_stringl(tf_application_ce, application, ZEND_STRL(TF_APPLICATION_PROPERTY_NAME_CONFIG_FILE), config_file, config_file_len TSRMLS_CC);
+    zend_update_property_stringl(tf_application_ce, application, ZEND_STRL(TF_APPLICATION_PROPERTY_NAME_CONFIG_SECTION), config_section, config_section_len TSRMLS_CC);
 
     zval *application_root = tf_config_get(config, ZEND_STRL("root") TSRMLS_CC);
     if (!application_root) {
@@ -227,6 +229,14 @@ PHP_METHOD(tf_application, getConfig) {
     RETURN_ZVAL(config, 1, 0);
 }
 
+PHP_METHOD(tf_application, reloadConfig) {
+    zval *config_file = zend_read_property(tf_application_ce, getThis(), ZEND_STRL(TF_APPLICATION_PROPERTY_NAME_CONFIG_FILE), 1 TSRMLS_CC);
+    zval *config_section = zend_read_property(tf_application_ce, getThis(), ZEND_STRL(TF_APPLICATION_PROPERTY_NAME_CONFIG_SECTION), 1 TSRMLS_CC);
+    zval *config = tf_config_constructor(NULL, Z_STRVAL_P(config_file), Z_STRLEN_P(config_file), Z_STRVAL_P(config_section), Z_STRLEN_P(config_section) TSRMLS_CC);
+    zend_update_property(tf_application_ce, getThis(), ZEND_STRL(TF_APPLICATION_PROPERTY_NAME_CONFIG), config TSRMLS_CC);
+    zval_ptr_dtor(&config);
+}
+
 PHP_METHOD(tf_application, getDB) {
     zval *db = tf_application_get_db(getThis() TSRMLS_CC);
     RETURN_ZVAL(db, 1, 0);
@@ -266,6 +276,7 @@ PHP_METHOD(tf_application, getLoader) {
 
 zend_function_entry tf_application_methods[] = {
     PHP_ME(tf_application, getConfig, NULL, ZEND_ACC_PUBLIC)
+    PHP_ME(tf_application, reloadConfig, NULL, ZEND_ACC_PUBLIC)
     PHP_ME(tf_application, getDB, NULL, ZEND_ACC_PUBLIC)
     PHP_ME(tf_application, getRedis, tf_application_getRedis_arginfo, ZEND_ACC_PUBLIC)
     PHP_ME(tf_application, getSession, NULL, ZEND_ACC_PUBLIC)
@@ -281,6 +292,8 @@ ZEND_MINIT_FUNCTION(tf_application) {
     tf_application_ce->ce_flags |= ZEND_ACC_EXPLICIT_ABSTRACT_CLASS;
 
     zend_declare_property_null(tf_application_ce, ZEND_STRL(TF_APPLICATION_PROPERTY_NAME_CONFIG), ZEND_ACC_PROTECTED TSRMLS_CC);
+    zend_declare_property_null(tf_application_ce, ZEND_STRL(TF_APPLICATION_PROPERTY_NAME_CONFIG_FILE), ZEND_ACC_PROTECTED TSRMLS_CC);
+    zend_declare_property_null(tf_application_ce, ZEND_STRL(TF_APPLICATION_PROPERTY_NAME_CONFIG_SECTION), ZEND_ACC_PROTECTED TSRMLS_CC);
     zend_declare_property_null(tf_application_ce, ZEND_STRL(TF_APPLICATION_PROPERTY_NAME_ROOT_PATH), ZEND_ACC_PROTECTED TSRMLS_CC);
     zend_declare_property_null(tf_application_ce, ZEND_STRL(TF_APPLICATION_PROPERTY_NAME_DB), ZEND_ACC_PROTECTED TSRMLS_CC);
     zend_declare_property_null(tf_application_ce, ZEND_STRL(TF_APPLICATION_PROPERTY_NAME_REDIS_ARRAY), ZEND_ACC_PROTECTED TSRMLS_CC);
