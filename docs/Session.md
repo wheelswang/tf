@@ -12,7 +12,7 @@ public mixed function [get](#get)(string name)
 
 public void function [set](#set)(string name, mixed value)
 
-public void function [del](#del)(string name)
+public void function [delete](#delete)(string name)
 
 public string function [getSessionId](#getsessionid)(void)
 
@@ -66,9 +66,9 @@ redis配置，如：array('server' => '127.0.0.1:6379', 'index' => 1)
 
 -----
 
-## del
+## delete
 ### 定义
-    public void function del(string name)
+    public void function delete(string name)
 ### 参数
 #### name
 名称

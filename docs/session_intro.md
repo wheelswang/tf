@@ -16,7 +16,7 @@ application.ini中作相关配置
 ## 示例
     TF::getSession()->get('id');
     TF::getSession()->set('id', 1);
-    TF::getSession()->del('id');
+    TF::getSession()->delete('id');
 
     //another way
     $_SESSION['id'];

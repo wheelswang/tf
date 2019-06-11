@@ -284,6 +284,8 @@ PHP_METHOD(tf_session, delete) {
 }
 
 PHP_METHOD(tf_session, getSessionId) {
+    tf_session_start(getThis() TSRMLS_CC);
+    
     RETURN_STRING(PS(id), 1);
 }
 
