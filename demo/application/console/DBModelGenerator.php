@@ -7,6 +7,8 @@ use \TF;
 /**
  * useage:
  * ./run ModelGenerator tableName
+ *
+ * removing STRICT_TRANS_TABLES from sql_mode is suggested
  */
 class DBModelGenerator
 {
@@ -50,9 +52,6 @@ class DBModelGenerator
                 }
             } else {
                 $type = 'self::STRING';
-                if ($row['Type'] == 'datetime' && !$row['Default']) {
-                    $row['Default'] = '1970-01-01 08:00:00';
-                }
                 if ($row['Default']) {
                     if ($row['Type'] == 'datetime' && $row['Default'] == 'CURRENT_TIMESTAMP') {
                         $row['Default'] = 'self::CURRENT_TIMESTAMP';
