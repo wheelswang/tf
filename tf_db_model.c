@@ -53,22 +53,11 @@ ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(tf_db_model_update_arginfo, 0, 0, 3)
     ZEND_ARG_INFO(0, fields)
-    ZEND_ARG_INFO(0, condition)
-    ZEND_ARG_INFO(0, params)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(tf_db_model_updateByPk_arginfo, 0, 0, 2)
     ZEND_ARG_INFO(0, id)
     ZEND_ARG_INFO(0, data)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(tf_db_model_insert_arginfo, 0, 0, 1)
-    ZEND_ARG_INFO(0, data)
-ZEND_END_ARG_INFO()
-
-ZEND_BEGIN_ARG_INFO_EX(tf_db_model_delete_arginfo, 0, 0, 2)
-    ZEND_ARG_INFO(0, condition)
-    ZEND_ARG_INFO(0, params)
 ZEND_END_ARG_INFO()
 
 ZEND_BEGIN_ARG_INFO_EX(tf_db_model_deleteByPk_arginfo, 0, 0, 1)
@@ -515,8 +504,8 @@ zend_function_entry tf_db_model_methods[]= {
     PHP_ME(tf_db_model, queryAll, tf_db_model_queryAll_arginfo, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(tf_db_model, update, tf_db_model_update_arginfo, ZEND_ACC_PUBLIC)
     PHP_ME(tf_db_model, updateByPk, tf_db_model_updateByPk_arginfo, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
-    PHP_ME(tf_db_model, insert, tf_db_model_insert_arginfo, ZEND_ACC_PUBLIC)
-    PHP_ME(tf_db_model, delete, tf_db_model_delete_arginfo, ZEND_ACC_PUBLIC)
+    PHP_ME(tf_db_model, insert, NULL, ZEND_ACC_PUBLIC)
+    PHP_ME(tf_db_model, delete, NULL, ZEND_ACC_PUBLIC)
     PHP_ME(tf_db_model, deleteByPk, tf_db_model_deleteByPk_arginfo, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     PHP_ME(tf_db_model, count, tf_db_model_count_arginfo, ZEND_ACC_PUBLIC | ZEND_ACC_STATIC)
     {NULL, NULL, NULL}
