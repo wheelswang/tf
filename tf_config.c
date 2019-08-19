@@ -291,6 +291,7 @@ zval * tf_config_constructor(zval *config, char *file, int file_len, char *secti
     struct stat fstat_buf;
     fstat(fd, &fstat_buf);
     int ctime = fstat_buf.st_ctime;
+    close(fd);
 
     do {
         if (!TF_G(configs_cache)) {
