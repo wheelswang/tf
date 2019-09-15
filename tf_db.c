@@ -868,6 +868,7 @@ zval * tf_db_get_last_insert_id(zval *db TSRMLS_DC) {
     call_user_function(&pdo_statement_ce->function_table, &pdo, method, ret, 0, NULL TSRMLS_CC);
 
     zval_ptr_dtor(&method);
+    convert_to_long(ret);
 
     return ret;
 }
