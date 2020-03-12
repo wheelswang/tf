@@ -848,6 +848,8 @@ zval * tf_db_count(zval *db, char *table, zval *condition, zval *params TSRMLS_D
     Z_ADDREF_P(pzval);
     zval_ptr_dtor(&ret);
 
+    convert_to_long(pzval);
+
     return pzval;
 }
 
