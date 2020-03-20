@@ -371,7 +371,7 @@ PHP_METHOD(tf_controller, display) {
 PHP_METHOD(tf_controller, ajaxError) {
     char *error_msg = NULL;
     int error_msg_len;
-    long error_code = 100;
+    long error_code = -1;
     if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|sl", &error_msg, &error_msg_len, &error_code) != SUCCESS) {
         return;
     }
@@ -380,6 +380,14 @@ PHP_METHOD(tf_controller, ajaxError) {
         zval *error_msg_zval = tf_error_get_error_msg(tf_get_error(TSRMLS_CC) TSRMLS_CC);
         error_msg = Z_STRVAL_P(error_msg_zval);
         error_msg_len = Z_STRLEN_P(error_msg_zval);
+    }
+
+    if (error_code == -1) {
+        zval *error_code_zval = tf_error_get_error_code(tf_get_error(TSRMLS_CC) TSRMLS_CC);
+        error_code = Z_LVAL_P(error_code_zval);
+        if (error_code == 0) {
+            error_code = -1;
+        }
     }
 
     tf_controller_ajax_out(getThis(), error_code, error_msg, error_msg_len, NULL TSRMLS_CC);
