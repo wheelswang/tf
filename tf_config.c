@@ -206,7 +206,7 @@ static void tf_config_simple_parser_cb(zval *key, zval *value, zval *index, int 
 }
 
 static void tf_config_parser_cb(zval *key, zval *value, zval *index, int callback_type, zval *arr) {
-    if (TF_G(config_parsing_flag) == TF_CONFIG_INI_PARSING_END) {
+    if (TF_CONFIG_G(config_parsing_flag) == TF_CONFIG_INI_PARSING_END) {
         return;
     }
 
@@ -215,13 +215,13 @@ static void tf_config_parser_cb(zval *key, zval *value, zval *index, int callbac
         char *section, *skey, *next_skey, *skey_orig;
         uint section_len, skey_len;
 
-        if (TF_G(config_parsing_flag) == TF_CONFIG_INI_PARSING_PROCESS) {
-            TF_G(config_parsing_flag) = TF_CONFIG_INI_PARSING_END;
+        if (TF_CONFIG_G(config_parsing_flag) == TF_CONFIG_INI_PARSING_PROCESS) {
+            TF_CONFIG_G(config_parsing_flag) = TF_CONFIG_INI_PARSING_END;
             return;
         }
 
-        MAKE_STD_ZVAL(TF_G(config_data_tmp));
-        array_init(TF_G(config_data_tmp));
+        MAKE_STD_ZVAL(TF_CONFIG_G(config_data_tmp));
+        array_init(TF_CONFIG_G(config_data_tmp));
 
         skey_orig = skey = estrndup(Z_STRVAL_P(key), Z_STRLEN_P(key));
         skey_len = Z_STRLEN_P(key);
@@ -244,7 +244,7 @@ static void tf_config_parser_cb(zval *key, zval *value, zval *index, int callbac
                 section = skey;
                 section_len = skey_len;
             } else if (zend_symtable_find(Z_ARRVAL_P(arr), skey, skey_len + 1, (void **)&parent) == SUCCESS) {
-                tf_config_deep_copy_section(TF_G(config_data_tmp), *parent TSRMLS_CC);
+                tf_config_deep_copy_section(TF_CONFIG_G(config_data_tmp), *parent TSRMLS_CC);
             }
 
             if (!next_skey) {
@@ -256,16 +256,16 @@ static void tf_config_parser_cb(zval *key, zval *value, zval *index, int callbac
             i++;
         };
 
-        zend_symtable_update(Z_ARRVAL_P(arr), section, section_len + 1, &TF_G(config_data_tmp), sizeof(zval *), NULL);
-        if (TF_G(config_section) && strlen(TF_G(config_section)) == section_len
-                && !strncasecmp(TF_G(config_section), section, section_len)) {
-            TF_G(config_parsing_flag) = TF_CONFIG_INI_PARSING_PROCESS;
+        zend_symtable_update(Z_ARRVAL_P(arr), section, section_len + 1, &TF_CONFIG_G(config_data_tmp), sizeof(zval *), NULL);
+        if (TF_CONFIG_G(config_section) && strlen(TF_CONFIG_G(config_section)) == section_len
+                && !strncasecmp(TF_CONFIG_G(config_section), section, section_len)) {
+            TF_CONFIG_G(config_parsing_flag) = TF_CONFIG_INI_PARSING_PROCESS;
         }
         efree(skey_orig);
     } else if (value) {
         zval *active_arr;
-        if (TF_G(config_data_tmp)) {
-            active_arr = TF_G(config_data_tmp);
+        if (TF_CONFIG_G(config_data_tmp)) {
+            active_arr = TF_CONFIG_G(config_data_tmp);
         } else {
             active_arr = arr;
         }
@@ -294,12 +294,12 @@ zval * tf_config_constructor(zval *config, char *file, int file_len, char *secti
     close(fd);
 
     do {
-        if (!TF_G(configs_cache)) {
+        if (!TF_CONFIG_G(configs_cache)) {
             break;
         }
 
         zval **config_cache, **cache_ctime;
-        if (zend_symtable_find(TF_G(configs_cache), cache_key, strlen(cache_key) + 1, (void **)&config_cache) == FAILURE) {
+        if (zend_symtable_find(TF_CONFIG_G(configs_cache), cache_key, strlen(cache_key) + 1, (void **)&config_cache) == FAILURE) {
             break;
         }
 
@@ -330,20 +330,17 @@ zval * tf_config_constructor(zval *config, char *file, int file_len, char *secti
     fh.handle.fp = VCWD_FOPEN(file, "r");
     fh.type = ZEND_HANDLE_FP;
 
-    TF_G(config_parsing_flag) = TF_CONFIG_INI_PARSING_START;
+    TF_CONFIG_G(config_parsing_flag) = TF_CONFIG_INI_PARSING_START;
 
-    if (section && section_len) {
-        if (TF_G(config_section)) {
-            efree(TF_G(config_section));
-        }
-        TF_G(config_section) = estrndup(section, section_len);
+    if (TF_CONFIG_G(config_section) == NULL && section && section_len) {
+        TF_CONFIG_G(config_section) = pestrndup(section, section_len, 1);
     }
     
     zval *config_data;
     MAKE_STD_ZVAL(config_data);
     array_init(config_data);
 
-    if (zend_parse_ini_file(&fh, 0, 0, (zend_ini_parser_cb_t)tf_config_parser_cb, config_data TSRMLS_CC)  == FAILURE) {
+    if (zend_parse_ini_file(&fh, 0, 0, (zend_ini_parser_cb_t)tf_config_parser_cb, config_data TSRMLS_CC) == FAILURE) {
         zval_ptr_dtor(&config_data);
         efree(cache_key);
         php_error_docref(NULL TSRMLS_CC, E_ERROR, "failed to parse config file");
@@ -371,9 +368,9 @@ zval * tf_config_constructor(zval *config, char *file, int file_len, char *secti
     zend_update_property(tf_config_ce, config, ZEND_STRL(TF_CONFIG_PROPERTY_NAME_DATA), config_data TSRMLS_CC);
     zval_ptr_dtor(&config_data);
 
-    if (!TF_G(configs_cache)) {
-        TF_G(configs_cache) = (HashTable *)pemalloc(sizeof(HashTable), 1);
-        zend_hash_init(TF_G(configs_cache), 0, NULL, (dtor_func_t)tf_common_persistent_zval_dtor, 1);
+    if (!TF_CONFIG_G(configs_cache)) {
+        TF_CONFIG_G(configs_cache) = (HashTable *)pemalloc(sizeof(HashTable), 1);
+        zend_hash_init(TF_CONFIG_G(configs_cache), 0, NULL, (dtor_func_t)tf_common_persistent_zval_dtor, 1);
     }
 
     zval *config_cache;
@@ -385,10 +382,15 @@ zval * tf_config_constructor(zval *config, char *file, int file_len, char *secti
     Z_ADDREF_P(config_data);
 
     zval *config_cache_persistent = tf_common_zval_copy(config_cache, 1);
-    zend_symtable_update(TF_G(configs_cache), cache_key, strlen(cache_key) + 1, &config_cache_persistent, sizeof(zval *), NULL);
+    zend_symtable_update(TF_CONFIG_G(configs_cache), cache_key, strlen(cache_key) + 1, &config_cache_persistent, sizeof(zval *), NULL);
 
     zval_ptr_dtor(&config_cache);
     efree(cache_key);
+
+    zend_update_property_stringl(tf_config_ce, config, ZEND_STRL(TF_CONFIG_PROPERTY_NAME_FILE), file, file_len TSRMLS_CC);
+    if (section && section_len) {
+        zend_update_property_stringl(tf_config_ce, config, ZEND_STRL(TF_CONFIG_PROPERTY_NAME_SECTION), section, section_len TSRMLS_CC);
+    }
 
     return config;
 }
@@ -457,12 +459,31 @@ PHP_METHOD(tf_config, get) {
     }
 }
 
+PHP_METHOD(tf_config, reload) {
+    zend_hash_destroy(TF_CONFIG_G(configs_cache));
+    pefree(TF_CONFIG_G(configs_cache), 1);
+    TF_CONFIG_G(configs_cache) = NULL;
+
+    zval *file = zend_read_property(tf_config_ce, getThis(), ZEND_STRL(TF_CONFIG_PROPERTY_NAME_FILE), 1 TSRMLS_CC);
+    zval *section = zend_read_property(tf_config_ce, getThis(), ZEND_STRL(TF_CONFIG_PROPERTY_NAME_SECTION), 1 TSRMLS_CC);
+    tf_config_constructor(getThis(), Z_STRVAL_P(file), Z_STRLEN_P(file), Z_TYPE_P(section) == IS_NULL ? NULL : Z_STRVAL_P(section), Z_TYPE_P(section) == IS_NULL ? 0 : Z_STRLEN_P(section) TSRMLS_CC);
+
+    RETVAL_TRUE;
+}
+
 zend_function_entry tf_config_methods[] = {
     PHP_ME(tf_config, __construct, tf_config_construct_arginfo, ZEND_ACC_PUBLIC | ZEND_ACC_CTOR)
     PHP_ME(tf_config, getAll, NULL, ZEND_ACC_PUBLIC)
     PHP_ME(tf_config, get, tf_config_get_arginfo, ZEND_ACC_PUBLIC)
+    PHP_ME(tf_config, reload, NULL, ZEND_ACC_PUBLIC)
     {NULL, NULL, NULL}
 };
+
+PHP_GINIT_FUNCTION(tf_config) {
+    tf_config_globals->configs_cache = NULL;
+    tf_config_globals->config_data_tmp = NULL;
+    tf_config_globals->config_section = NULL;
+}
 
 ZEND_MINIT_FUNCTION(tf_config) {
     zend_class_entry ce;
@@ -471,7 +492,30 @@ ZEND_MINIT_FUNCTION(tf_config) {
     tf_config_ce = zend_register_internal_class_ex(&ce, NULL, NULL TSRMLS_CC);
 
     zend_declare_property_null(tf_config_ce, ZEND_STRL(TF_CONFIG_PROPERTY_NAME_DATA), ZEND_ACC_PRIVATE TSRMLS_CC);
+    zend_declare_property_null(tf_config_ce, ZEND_STRL(TF_CONFIG_PROPERTY_NAME_FILE), ZEND_ACC_PRIVATE TSRMLS_CC);
     zend_declare_property_null(tf_config_ce, ZEND_STRL(TF_CONFIG_PROPERTY_NAME_SECTION), ZEND_ACC_PRIVATE TSRMLS_CC);
 
     return SUCCESS;
+}
+
+ZEND_MSHUTDOWN_FUNCTION(tf_config) {
+    if (TF_CONFIG_G(configs_cache)) {
+        zend_hash_destroy(TF_CONFIG_G(configs_cache));
+        pefree(TF_CONFIG_G(configs_cache), 1);
+        TF_CONFIG_G(configs_cache) = NULL;
+    }
+
+    if (TF_CONFIG_G(config_section)) {
+        pefree(TF_CONFIG_G(config_section), 1);
+        TF_CONFIG_G(config_section) = NULL;
+    }
+
+    return SUCCESS;
+}
+
+ZEND_RSHUTDOWN_FUNCTION(tf_config) {
+    if (TF_CONFIG_G(config_data_tmp)) {
+        zval_ptr_dtor(&TF_CONFIG_G(config_data_tmp));
+        TF_CONFIG_G(config_data_tmp) = NULL;
+    }
 }

@@ -27,7 +27,7 @@
 
 #define PHP_TF_VERSION "1.0"
 
-ZEND_DECLARE_MODULE_GLOBALS(tf);
+ZEND_DECLARE_MODULE_GLOBALS(tf)
 
 PHP_INI_BEGIN()
     STD_PHP_INI_ENTRY("tf.environ", "product", PHP_INI_SYSTEM, OnUpdateString, environ, zend_tf_globals, tf_globals)
@@ -282,11 +282,11 @@ zend_function_entry tf_methods[] = {
     {NULL, NULL, NULL}
 };
 
-PHP_GINIT_FUNCTION(tf) {
-    tf_globals->configs_cache = NULL;
-    tf_globals->config_data_tmp = NULL;
-    tf_globals->config_section = NULL;
-}
+// PHP_GINIT_FUNCTION(tf) {
+//     tf_globals->configs_cache = NULL;
+//     tf_globals->config_data_tmp = NULL;
+//     tf_globals->config_section = NULL;
+// }
 
 PHP_MINIT_FUNCTION(tf) {
     REGISTER_INI_ENTRIES();
@@ -353,10 +353,8 @@ PHP_MINIT_FUNCTION(tf) {
 }
 
 PHP_MSHUTDOWN_FUNCTION(tf) {
-    if (TF_G(configs_cache)) {
-        zend_hash_destroy(TF_G(configs_cache));
-        pefree(TF_G(configs_cache), 1);
-        TF_G(configs_cache) = NULL;
+    if (ZEND_MODULE_SHUTDOWN_N(tf_config)(INIT_FUNC_ARGS_PASSTHRU) != SUCCESS) {
+        return FAILURE;
     }
 
     return SUCCESS;
@@ -373,14 +371,8 @@ PHP_RINIT_FUNCTION(tf) {
 }
 
 PHP_RSHUTDOWN_FUNCTION(tf) {
-    if (TF_G(config_data_tmp)) {
-        zval_ptr_dtor(&TF_G(config_data_tmp));
-        TF_G(config_data_tmp) = NULL;
-    }
-
-    if (TF_G(config_section)) {
-        efree(TF_G(config_section));
-        TF_G(config_section) = NULL;
+    if (ZEND_MODULE_DEACTIVATE_N(tf_config)(SHUTDOWN_FUNC_ARGS_PASSTHRU) != SUCCESS) {
+        return FAILURE;
     }
 
     return SUCCESS;
@@ -422,4 +414,3 @@ zend_module_entry tf_module_entry = {
 #ifdef COMPILE_DL_TF
 ZEND_GET_MODULE(tf)
 #endif
-
