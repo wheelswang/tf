@@ -186,6 +186,9 @@ void tf_model_set(zval *model, char *name, int name_len, zval *value TSRMLS_DC) 
         return;
     }
 
+    Z_ADDREF_P(value);
+    // php copy on write, value is referenced, so must separate val before convert
+    SEPARATE_ZVAL(&value);
     if (Z_LVAL_P(var_type) == TF_MODEL_VAR_TYPE_INT) {
         convert_to_long(value);
     }  else if (Z_LVAL_P(var_type) == TF_MODEL_VAR_TYPE_DOUBLE) {
@@ -197,11 +200,10 @@ void tf_model_set(zval *model, char *name, int name_len, zval *value TSRMLS_DC) 
     } else if (Z_LVAL_P(var_type) == TF_MODEL_VAR_TYPE_ARRAY) {
         convert_to_array(value);
     } else {
+        Z_DELREF_P(value);
         return;
     }
-
     add_assoc_zval_ex(data, name, name_len + 1, value);
-    Z_ADDREF_P(value);
 }
 
 char * tf_model_get_camel_str(char *str, int str_len, char **camel_key, int *camel_key_len) {
