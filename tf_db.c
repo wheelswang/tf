@@ -307,12 +307,16 @@ void * tf_db_build_condition_str(zval *condition, char **return_condition, zval 
             }
 
             zend_hash_get_current_data(Z_ARRVAL_P(condition), (void **)&ppzval);
-            // 数组参数传递是浅拷贝，必须分离变量后进行更改操作
-            SEPARATE_ZVAL(ppzval);
-            convert_to_string(*ppzval);
-            add_assoc_zval(params, pdo_key, *ppzval);
-            Z_ADDREF_PP(ppzval);
-
+            /**
+             * hash table中存的是二级指针，直接SEPARATE_ZVAL(ppzval)会改变ppzval指向的一级指针数据，导致hashtable指向被分离后的新数据
+             * ppzval -> pzval -> zval
+             */
+            zval *new_ppzval = *ppzval;
+            Z_ADDREF_P(new_ppzval);
+            SEPARATE_ZVAL(&new_ppzval);
+            convert_to_string(new_ppzval);
+            add_assoc_zval(params, pdo_key, new_ppzval);
+            
             efree(pdo_key);
         }
     } else {
@@ -430,10 +434,11 @@ zval * tf_db_build_update_sql_data(char *table, zval *data, zval *condition, zva
         }
 
         zend_hash_get_current_data(Z_ARRVAL_P(data), (void **)&ppzval);
-        SEPARATE_ZVAL(ppzval);
-        convert_to_string(*ppzval);
-        add_assoc_zval(new_params, pdo_key, *ppzval);
-        Z_ADDREF_PP(ppzval);
+        zval *new_ppzval = *ppzval;
+        Z_ADDREF_P(new_ppzval);
+        SEPARATE_ZVAL(&new_ppzval);
+        convert_to_string(new_ppzval);
+        add_assoc_zval(new_params, pdo_key, new_ppzval);
 
         efree(pdo_key);
     }
